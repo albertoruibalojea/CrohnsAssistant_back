@@ -4,20 +4,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
 import java.util.Objects;
 
-@Document(collection = "symptoms")
+@Document(collection = "professionals")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Symptom {
-
+public class Professional {
     @Id
     private String id;
     private String name;
-    private String user;
-    private Date timestamp;
+    private String type;
 
-    public Symptom() {
+    public Professional() {
     }
 
     public String getId() {
@@ -36,30 +33,20 @@ public class Symptom {
         this.name = name;
     }
 
-    public String getUser() {
-        return user;
+    public String getType() {
+        return type;
     }
 
-    public void setUser(String user) {
-        this.user = user;
+    public void setType(String type) {
+        this.type = type;
     }
-
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
-
 
     @Override
     public String toString() {
-        return "Symptom{" +
+        return "Professional{" +
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
-                ", user='" + user + '\'' +
-                ", timestamp=" + timestamp +
+                ", type='" + type + '\'' +
                 '}';
     }
 
@@ -67,12 +54,12 @@ public class Symptom {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Symptom symptom = (Symptom) o;
-        return id.equals(symptom.id) && name.equals(symptom.name) && user.equals(symptom.user) && timestamp.equals(symptom.timestamp);
+        Professional that = (Professional) o;
+        return id.equals(that.id) && name.equals(that.name) && type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, user, timestamp);
+        return Objects.hash(id, name, type);
     }
 }
