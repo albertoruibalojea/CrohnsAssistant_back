@@ -1,8 +1,9 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.model.Food;
 import crohnsassistantapi.model.Symptom;
 import crohnsassistantapi.model.SymptomTypes;
-import crohnsassistantapi.repository.SymptomRepository;
+import crohnsassistantapi.repository.FoodRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,22 +15,22 @@ import org.springframework.stereotype.Service;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-
 @Service
-public class SymptomService {
-    private final SymptomRepository symptoms;
+public class FoodService {
+
+    private final FoodRepository foods;
     private final MongoTemplate mongo;
 
     @Autowired
-    public SymptomService(SymptomRepository symptoms, MongoTemplate mongo) {
-        this.symptoms = symptoms;
+    public FoodService(FoodRepository foods, MongoTemplate mongo) {
+        this.foods = foods;
         this.mongo = mongo;
     }
 
-    //get symptoms from a specific date to today for a specific user
-    public Optional<Page<Symptom>> get(String email, Date start, int page, int size, Sort sort) {
+    //get foods from a specific date to today for a specific user
+    public Optional<Page<Food>> get(String email, Date start, int page, int size, Sort sort) {
         Pageable request = PageRequest.of(page, size, sort);
-        Page<Symptom> result;
+        Page<Food> result;
 
         if (email != null && start != null) {
             List<Criteria> criterios = new ArrayList<>();
@@ -51,29 +52,29 @@ public class SymptomService {
             query.addCriteria(new Criteria().andOperator(criterios.toArray(new Criteria[criterios.size()])));
 
             result = PageableExecutionUtils.getPage(
-                    mongo.find(query, Symptom.class),
+                    mongo.find(query, Food.class),
                     request,
-                    () -> mongo.count(query, Symptom.class)
+                    () -> mongo.count(query, Food.class)
             );
         } else {
-            Example<Symptom> filter = Example.of(new Symptom());
+            Example<Food> filter = Example.of(new Food());
 
-            result = symptoms.findAll(filter, request);
+            result = foods.findAll(filter, request);
         }
 
         if(result.isEmpty())
             return Optional.empty();
-        /*else result.map(symptom ->{
+        /*else result.map(food ->{
             return Optional.of(result);
         });*/
 
         return Optional.of(result);
     }
 
-    //get symptoms from a specific period of time for a specific user
-    public Optional<Page<Symptom>> get(String email, Date start, Date end, int page, int size, Sort sort) {
+    //get foods from a specific period of time for a specific user
+    public Optional<Page<Food>> get(String email, Date start, Date end, int page, int size, Sort sort) {
         Pageable request = PageRequest.of(page, size, sort);
-        Page<Symptom> result;
+        Page<Food> result;
 
         if (email != null && start != null && end != null) {
             List<Criteria> criterios = new ArrayList<>();
@@ -104,14 +105,14 @@ public class SymptomService {
             query.addCriteria(new Criteria().andOperator(criterios.toArray(new Criteria[criterios.size()])));
 
             result = PageableExecutionUtils.getPage(
-                    mongo.find(query, Symptom.class),
+                    mongo.find(query, Food.class),
                     request,
-                    () -> mongo.count(query, Symptom.class)
+                    () -> mongo.count(query, Food.class)
             );
         } else {
-            Example<Symptom> filter = Example.of(new Symptom());
+            Example<Food> filter = Example.of(new Food());
 
-            result = symptoms.findAll(filter, request);
+            result = foods.findAll(filter, request);
         }
 
         if(result.isEmpty())
@@ -123,50 +124,42 @@ public class SymptomService {
         return Optional.of(result);
     }
 
-    public Optional<Symptom> get(String id) {
-        return symptoms.findById(id);
+    public Optional<Food> get(String id) {
+        return foods.findById(id);
     }
 
-    public Optional<Symptom> create(Symptom symptom) {
-        if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
-            throw new IllegalArgumentException("Symptom already exists");
+    public Optional<Food> create(Food food) {
+        //check if food already exists
+        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
+            throw new IllegalArgumentException("Food already exists");
         } else {
-            if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
-                if (symptom.getTimestamp() != null) {
-                    if (symptom.getName() != null && !symptom.getName().isEmpty()) {
-                        //we must compare if the symptom name is valid (it must be one of the SymptomTypes enum values)
-                        if(SymptomTypes.fromString(symptom.getName()) != null){
-                            return Optional.of(symptoms.save(symptom));
-                        }
-                        else throw new IllegalArgumentException("Name is not valid");
-                    } else throw new IllegalArgumentException("Name is empty");
-                } else throw new IllegalArgumentException("Timestamp is empty");
-            } else throw new IllegalArgumentException("User is empty");
+            if(food.getUser() != null && !food.getUser().isEmpty()){
+                if(food.getName() == null || !food.getName().isEmpty()){
+                    if(food.getTimestamp() != null){
+                        return Optional.of(foods.save(food));
+                    } else throw new IllegalArgumentException("Timestamp is required");
+                } else throw new IllegalArgumentException("Name is required");
+            } else throw new IllegalArgumentException("User is required");
         }
     }
 
-    public Optional<Symptom> update(Symptom symptom) {
-        if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
-            if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
-                if (symptom.getTimestamp() != null) {
-                    if (symptom.getName() != null && !symptom.getName().isEmpty()) {
-                        //we must compare if the symptom name is valid (it must be one of the SymptomTypes enum values)
-                        if(SymptomTypes.fromString(symptom.getName()) != null){
-                            return Optional.of(symptoms.save(symptom));
-                        }
-                        else throw new IllegalArgumentException("Name is not valid");
+    public Optional<Food> update(Food food) {
+        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
+            if (food.getUser() != null && !food.getUser().isEmpty()) {
+                if (food.getTimestamp() != null) {
+                    if (food.getName() != null && !food.getName().isEmpty()) {
+                        return Optional.of(foods.save(food));
                     } else throw new IllegalArgumentException("Name is empty");
                 } else throw new IllegalArgumentException("Timestamp is empty");
             } else throw new IllegalArgumentException("User is empty");
-        } else throw new IllegalArgumentException("Symptom doesn´t exist");
+        } else throw new IllegalArgumentException("Food doesn´t exist");
     }
 
-    public Optional<Symptom> delete(String id) {
-        Optional<Symptom> symptom = symptoms.findById(id);
-        if (symptom.isPresent()) {
-            symptoms.delete(symptom.get());
-            return symptom;
-        } else throw new IllegalArgumentException("Symptom doesn´t exist");
+    public Optional<Food> delete(String id) {
+        Optional<Food> food = foods.findById(id);
+        if (food.isPresent()) {
+            foods.delete(food.get());
+            return food;
+        } else throw new IllegalArgumentException("Food doesn´t exist");
     }
-
 }

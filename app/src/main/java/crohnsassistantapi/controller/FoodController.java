@@ -1,7 +1,8 @@
 package crohnsassistantapi.controller;
 
+import crohnsassistantapi.model.Food;
 import crohnsassistantapi.model.Symptom;
-import crohnsassistantapi.service.SymptomService;
+import crohnsassistantapi.service.FoodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -16,29 +17,30 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("symptoms")
-public class SymptomController {
-    private final SymptomService symptoms;
+@RequestMapping("foods")
+public class FoodController {
+    private final FoodService foods;
 
     @Autowired
-    public SymptomController(SymptomService symptoms) {
-        this.symptoms = symptoms;
+    public FoodController(FoodService foods) {
+        this.foods = foods;
     }
 
     @GetMapping(
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Symptom> get(@PathVariable("id") String id) {
-        return ResponseEntity.of(symptoms.get(id));
+    public void get(@PathVariable("id") String id) {
+        foods.get(id);
     }
 
     @GetMapping(
             path = "{email}/{date}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Page<Symptom>> get(@PathVariable("email") String email, @PathVariable("date") String date, @RequestParam(name = "page", defaultValue = "0") int page,
-                                      @RequestParam(name = "size", defaultValue = "20") int size, @RequestParam(name = "sort", defaultValue = "") List<String> sort) {
+    ResponseEntity<Page<Food>> get(@PathVariable("email") String email, @PathVariable("date") String date, @RequestParam(name = "page", defaultValue = "0") int page,
+                                   @RequestParam(name = "size", defaultValue = "20") int size, @RequestParam(name = "sort", defaultValue = "") List<String> sort) {
         List<Sort.Order> criteria = sort.stream().map(string -> {
                     if(string.equals("ASC") || string.equals("ASC.name") || string.isEmpty()){
                         return Sort.Order.asc("name");
@@ -57,15 +59,15 @@ public class SymptomController {
         LocalDate localDate = LocalDate.parse(date);
         Date date1 = java.sql.Date.valueOf(localDate);
 
-        return ResponseEntity.of(symptoms.get(email, date1, page, size, Sort.by(criteria)));
+        return ResponseEntity.of(foods.get(email, date1, page, size, Sort.by(criteria)));
     }
 
     @GetMapping(
             path = "{email}/{dateStart}/{dateEnd}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Page<Symptom>> get(@PathVariable("email") String email, @PathVariable("dateStart") String dateStart, @PathVariable("dateEnd") String dateEnd, @RequestParam(name = "page", defaultValue = "0") int page,
-                                      @RequestParam(name = "size", defaultValue = "20") int size, @RequestParam(name = "sort", defaultValue = "") List<String> sort) {
+    ResponseEntity<Page<Food>> get(@PathVariable("email") String email, @PathVariable("dateStart") String dateStart, @PathVariable("dateEnd") String dateEnd, @RequestParam(name = "page", defaultValue = "0") int page,
+                                   @RequestParam(name = "size", defaultValue = "20") int size, @RequestParam(name = "sort", defaultValue = "") List<String> sort) {
         List<Sort.Order> criteria = sort.stream().map(string -> {
                     if(string.equals("ASC") || string.equals("ASC.name") || string.isEmpty()){
                         return Sort.Order.asc("name");
@@ -86,30 +88,30 @@ public class SymptomController {
         LocalDate localDateEnd = LocalDate.parse(dateEnd);
         Date date2 = java.sql.Date.valueOf(localDateEnd);
 
-        return ResponseEntity.of(symptoms.get(email, date1, date2, page, size, Sort.by(criteria)));
+        return ResponseEntity.of(foods.get(email, date1, date2, page, size, Sort.by(criteria)));
     }
 
     @PostMapping(
-            //path="{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Symptom> create(@RequestBody Symptom symptom){
-        return ResponseEntity.of(symptoms.create(symptom));
+    ResponseEntity<Food> create(@RequestBody Food food) {
+        return ResponseEntity.of(foods.create(food));
     }
 
     @PutMapping(
-            path = "{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Symptom> update(@PathVariable("id") String id, @RequestBody Symptom symptom) {
-        return ResponseEntity.of(symptoms.update(symptom));
+    ResponseEntity<Food> update(@RequestBody Food food) {
+        return ResponseEntity.of(foods.update(food));
     }
 
     @DeleteMapping(
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Symptom> delete(@PathVariable("id") String id) {
-        return ResponseEntity.of(symptoms.delete(id));
+    ResponseEntity<Food> delete(@PathVariable("id") String id) {
+        return ResponseEntity.of(foods.delete(id));
     }
 }

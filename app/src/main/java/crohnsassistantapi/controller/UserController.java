@@ -34,6 +34,13 @@ public class UserController {
         return ResponseEntity.of(users.create(user));
     }
 
+    @PutMapping(
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<User> update(@RequestBody User user) {
+        return ResponseEntity.of(users.update(user));
+    }
+
     @DeleteMapping(
             path = "{email}",
             produces = MediaType.APPLICATION_JSON_VALUE
