@@ -106,6 +106,4 @@ public class CourageService {
 
         return Optional.of(result);
     }
-
-
 }
