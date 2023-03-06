@@ -1,7 +1,6 @@
 package crohnsassistantapi.controller;
 
 import crohnsassistantapi.model.Courage;
-import crohnsassistantapi.model.Symptom;
 import crohnsassistantapi.service.CourageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,11 +19,11 @@ import java.util.stream.Collectors;
 @RequestMapping("courage")
 public class CourageController {
 
-    private final CourageService courages;
+    private final CourageService courageService;
 
     @Autowired
-    public CourageController(CourageService courages) {
-        this.courages = courages;
+    public CourageController(CourageService courageService) {
+        this.courageService = courageService;
     }
 
     @GetMapping(
@@ -51,7 +50,7 @@ public class CourageController {
         LocalDate localDate = LocalDate.parse(date);
         Date date1 = java.sql.Date.valueOf(localDate);
 
-        return ResponseEntity.of(courages.get(email, date1, page, size, Sort.by(criteria)));
+        return ResponseEntity.of(courageService.get(email, date1, page, size, Sort.by(criteria)));
     }
 
     @GetMapping(
@@ -80,6 +79,6 @@ public class CourageController {
         LocalDate localDateEnd = LocalDate.parse(dateEnd);
         Date date2 = java.sql.Date.valueOf(localDateEnd);
 
-        return ResponseEntity.of(courages.get(email, date1, date2, page, size, Sort.by(criteria)));
+        return ResponseEntity.of(courageService.get(email, date1, date2, page, size, Sort.by(criteria)));
     }
 }

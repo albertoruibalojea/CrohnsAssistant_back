@@ -1,9 +1,7 @@
 package crohnsassistantapi.service;
 
-import crohnsassistantapi.model.Food;
-import crohnsassistantapi.model.Symptom;
-import crohnsassistantapi.model.SymptomTypes;
-import crohnsassistantapi.repository.FoodRepository;
+import crohnsassistantapi.model.Health;
+import crohnsassistantapi.repository.HealthRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -16,21 +14,23 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-public class FoodService {
+public class HealthService {
 
-    private final FoodRepository foods;
+    private final HealthRepository healths;
+
     private final MongoTemplate mongo;
 
     @Autowired
-    public FoodService(FoodRepository foods, MongoTemplate mongo) {
-        this.foods = foods;
+    public HealthService(HealthRepository healths, MongoTemplate mongo) {
+        this.healths = healths;
         this.mongo = mongo;
     }
 
-    //get foods from a specific date to today for a specific user
-    public Optional<Page<Food>> get(String email, Date start, int page, int size, Sort sort) {
+
+    //get health from a specific date to today for a specific user
+    public Optional<Page<Health>> get(String email, Date start, int page, int size, Sort sort) {
         Pageable request = PageRequest.of(page, size, sort);
-        Page<Food> result;
+        Page<Health> result;
 
         if (email != null && start != null) {
             List<Criteria> criterios = new ArrayList<>();
@@ -52,29 +52,29 @@ public class FoodService {
             query.addCriteria(new Criteria().andOperator(criterios.toArray(new Criteria[criterios.size()])));
 
             result = PageableExecutionUtils.getPage(
-                    mongo.find(query, Food.class),
+                    mongo.find(query, Health.class),
                     request,
-                    () -> mongo.count(query, Food.class)
+                    () -> mongo.count(query, Health.class)
             );
         } else {
-            Example<Food> filter = Example.of(new Food());
+            Example<Health> filter = Example.of(new Health());
 
-            result = foods.findAll(filter, request);
+            result = healths.findAll(filter, request);
         }
 
         if(result.isEmpty())
             return Optional.empty();
-        /*else result.map(food ->{
+        /*else result.map(health ->{
             return Optional.of(result);
         });*/
 
         return Optional.of(result);
     }
 
-    //get foods from a specific period of time for a specific user
-    public Optional<Page<Food>> get(String email, Date start, Date end, int page, int size, Sort sort) {
+    //get health from a specific period of time for a specific user
+    public Optional<Page<Health>> get(String email, Date start, Date end, int page, int size, Sort sort) {
         Pageable request = PageRequest.of(page, size, sort);
-        Page<Food> result;
+        Page<Health> result;
 
         if (email != null && start != null && end != null) {
             List<Criteria> criterios = new ArrayList<>();
@@ -105,14 +105,14 @@ public class FoodService {
             query.addCriteria(new Criteria().andOperator(criterios.toArray(new Criteria[criterios.size()])));
 
             result = PageableExecutionUtils.getPage(
-                    mongo.find(query, Food.class),
+                    mongo.find(query, Health.class),
                     request,
-                    () -> mongo.count(query, Food.class)
+                    () -> mongo.count(query, Health.class)
             );
         } else {
-            Example<Food> filter = Example.of(new Food());
+            Example<Health> filter = Example.of(new Health());
 
-            result = foods.findAll(filter, request);
+            result = healths.findAll(filter, request);
         }
 
         if(result.isEmpty())
@@ -124,42 +124,59 @@ public class FoodService {
         return Optional.of(result);
     }
 
-    public Optional<Food> get(String id) {
-        return foods.findById(id);
+    public Optional<Health> get(String id) {
+        return healths.findById(id);
     }
 
-    public Optional<Food> create(Food food) {
-        //check if food already exists
-        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
-            throw new IllegalArgumentException("Food already exists");
+    public Optional<Health> get(String email, Date timestamp) {
+        List<Criteria> criterios = new ArrayList<>();
+        Query query = new Query();
+
+        if (!email.isEmpty()) {
+            criterios.add(Criteria.where("user").in(email));
+        }
+        if (!timestamp.toString().isEmpty()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH);
+
+            Calendar cal = sdf.getCalendar();
+            Date d = new Date(cal.get(Calendar.DAY_OF_MONTH), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.YEAR));
+
+            //timestamp must be the date between the timestamp and today
+            criterios.add(Criteria.where("timestamp").gte(d));
+        }
+
+        query.addCriteria(new Criteria().andOperator(criterios.toArray(new Criteria[criterios.size()])));
+
+        return Optional.of(mongo.findOne(query, Health.class));
+    }
+
+    public Optional<Health> create(Health health) {
+        //check if health already exists
+        if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
+            throw new IllegalArgumentException("Health already exists");
         } else {
-            if(food.getUser() != null && !food.getUser().isEmpty()){
-                if(food.getName() == null || !food.getName().isEmpty()){
-                    if(food.getTimestamp() != null){
-                        return Optional.of(foods.save(food));
-                    } else throw new IllegalArgumentException("Timestamp is required");
-                } else throw new IllegalArgumentException("Name is required");
+            if(health.getUser() != null && !health.getUser().isEmpty()){
+                health.setCrohnActive(false);
+                health.setSymptomatology(false);
+
+                return Optional.of(this.healths.insert(health));
             } else throw new IllegalArgumentException("User is required");
         }
     }
 
-    public Optional<Food> update(Food food) {
-        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
-            if (food.getUser() != null && !food.getUser().isEmpty()) {
-                if (food.getTimestamp() != null) {
-                    if (food.getName() != null && !food.getName().isEmpty()) {
-                        return Optional.of(foods.save(food));
-                    } else throw new IllegalArgumentException("Name is empty");
-                } else throw new IllegalArgumentException("Timestamp is empty");
-            } else throw new IllegalArgumentException("User is empty");
-        } else throw new IllegalArgumentException("Food doesn´t exist");
+    public Optional<Health> update(Health health) {
+        return Optional.of(this.healths.save(health));
     }
 
-    public Optional<Food> delete(String id) {
-        Optional<Food> food = foods.findById(id);
-        if (food.isPresent()) {
-            foods.delete(food.get());
-            return food;
-        } else throw new IllegalArgumentException("Food doesn´t exist");
+    public Optional<Health> delete(String id) {
+        Optional<Health> health = healths.findById(id);
+        if (health.isPresent()) {
+            healths.delete(health.get());
+            return health;
+        } else throw new IllegalArgumentException("Health doesn´t exist");
+    }
+
+    public void deleteAll() {
+        healths.deleteAll();
     }
 }

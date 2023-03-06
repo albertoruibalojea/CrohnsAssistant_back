@@ -11,10 +11,9 @@ import java.util.Objects;
 public class Recommendation {
     @Id
     private String id;
-
     private String title;
-
     private String url;
+    private String category;
 
     public Recommendation() {
     }
@@ -43,12 +42,21 @@ public class Recommendation {
         this.url = url;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     @Override
     public String toString() {
         return "Recommendation{" +
                 "id='" + id + '\'' +
                 ", title='" + title + '\'' +
                 ", url='" + url + '\'' +
+                ", category='" + url + '\'' +
                 '}';
     }
 
@@ -57,11 +65,11 @@ public class Recommendation {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Recommendation that = (Recommendation) o;
-        return id.equals(that.id) && title.equals(that.title) && url.equals(that.url);
+        return id.equals(that.id) && title.equals(that.title) && url.equals(that.url) && category.equals(that.category);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, url);
+        return Objects.hash(id, title, url, category);
     }
 }

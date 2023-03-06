@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("users")
 public class UserController {
 
-    private final UserService users;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserService users) {
-        this.users = users;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping(
@@ -23,7 +23,7 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<User> get(@PathVariable("email") String email) {
-        return ResponseEntity.of(users.get(email));
+        return ResponseEntity.of(userService.get(email));
     }
 
     @PostMapping(
@@ -31,14 +31,14 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<User> create(@RequestBody User user){
-        return ResponseEntity.of(users.create(user));
+        return ResponseEntity.of(userService.create(user));
     }
 
     @PutMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<User> update(@RequestBody User user) {
-        return ResponseEntity.of(users.update(user));
+        return ResponseEntity.of(userService.update(user));
     }
 
     @DeleteMapping(
@@ -46,6 +46,6 @@ public class UserController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<User> delete(@PathVariable("email") String email) {
-        return ResponseEntity.of(users.delete(email));
+        return ResponseEntity.of(userService.delete(email));
     }
 }

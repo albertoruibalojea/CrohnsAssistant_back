@@ -14,10 +14,11 @@ public class EiiTeam {
     @Id
     private String id;
     private String phone;
-
+    private String name;
     private ArrayList<Professional> professionals;
 
     public EiiTeam() {
+        this.professionals = new ArrayList<>();
     }
 
     public String getId() {
@@ -36,6 +37,14 @@ public class EiiTeam {
         this.phone = phone;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public ArrayList<Professional> getProfessionals() {
         return professionals;
     }
@@ -49,6 +58,7 @@ public class EiiTeam {
         return "EiiTeam{" +
                 "id='" + id + '\'' +
                 ", phone='" + phone + '\'' +
+                ", name='" + name + '\'' +
                 ", professionals=" + professionals +
                 '}';
     }
@@ -58,11 +68,11 @@ public class EiiTeam {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EiiTeam eiiTeam = (EiiTeam) o;
-        return id.equals(eiiTeam.id) && Objects.equals(phone, eiiTeam.phone) && Objects.equals(professionals, eiiTeam.professionals);
+        return id.equals(eiiTeam.id) && Objects.equals(phone, eiiTeam.phone) && Objects.equals(name, eiiTeam.name) && Objects.equals(professionals, eiiTeam.professionals);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, phone, professionals);
+        return Objects.hash(id, phone, name, professionals);
     }
 }

@@ -18,11 +18,11 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("symptoms")
 public class SymptomController {
-    private final SymptomService symptoms;
+    private final SymptomService symptomService;
 
     @Autowired
-    public SymptomController(SymptomService symptoms) {
-        this.symptoms = symptoms;
+    public SymptomController(SymptomService symptomService) {
+        this.symptomService = symptomService;
     }
 
     @GetMapping(
@@ -30,7 +30,7 @@ public class SymptomController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Symptom> get(@PathVariable("id") String id) {
-        return ResponseEntity.of(symptoms.get(id));
+        return ResponseEntity.of(symptomService.get(id));
     }
 
     @GetMapping(
@@ -57,7 +57,7 @@ public class SymptomController {
         LocalDate localDate = LocalDate.parse(date);
         Date date1 = java.sql.Date.valueOf(localDate);
 
-        return ResponseEntity.of(symptoms.get(email, date1, page, size, Sort.by(criteria)));
+        return ResponseEntity.of(symptomService.get(email, date1, page, size, Sort.by(criteria)));
     }
 
     @GetMapping(
@@ -86,7 +86,7 @@ public class SymptomController {
         LocalDate localDateEnd = LocalDate.parse(dateEnd);
         Date date2 = java.sql.Date.valueOf(localDateEnd);
 
-        return ResponseEntity.of(symptoms.get(email, date1, date2, page, size, Sort.by(criteria)));
+        return ResponseEntity.of(symptomService.get(email, date1, date2, page, size, Sort.by(criteria)));
     }
 
     @PostMapping(
@@ -94,7 +94,7 @@ public class SymptomController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Symptom> create(@RequestBody Symptom symptom){
-        return ResponseEntity.of(symptoms.create(symptom));
+        return ResponseEntity.of(symptomService.create(symptom));
     }
 
     @PutMapping(
@@ -102,7 +102,7 @@ public class SymptomController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Symptom> update(@PathVariable("id") String id, @RequestBody Symptom symptom) {
-        return ResponseEntity.of(symptoms.update(symptom));
+        return ResponseEntity.of(symptomService.update(symptom));
     }
 
     @DeleteMapping(
@@ -110,6 +110,6 @@ public class SymptomController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     ResponseEntity<Symptom> delete(@PathVariable("id") String id) {
-        return ResponseEntity.of(symptoms.delete(id));
+        return ResponseEntity.of(symptomService.delete(id));
     }
 }

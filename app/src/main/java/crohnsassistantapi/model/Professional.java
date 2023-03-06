@@ -5,8 +5,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Objects;
+import java.util.UUID;
 
-@Document(collection = "professionals")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Professional {
     @Id
@@ -15,6 +15,12 @@ public class Professional {
     private String type;
 
     public Professional() {
+    }
+
+    public Professional(String name, String type) {
+        this.name = name;
+        this.type = type;
+        this.id = UUID.randomUUID().toString();
     }
 
     public String getId() {
