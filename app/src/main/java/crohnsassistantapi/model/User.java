@@ -12,15 +12,15 @@ public class User {
 
     @Id
     private String id;
-
     private String CROHN_TYPE;
-
     private String email;
     private String password;
     private String name;
     private String eii_team;
+    private Integer daysToAnalyze;
 
     public User() {
+        this.daysToAnalyze = 3;
     }
 
     public String getId() {
@@ -71,6 +71,14 @@ public class User {
         this.eii_team = eii_team;
     }
 
+    public Integer getDaysToAnalyze() {
+        return daysToAnalyze;
+    }
+
+    public void setDaysToAnalyze(Integer daysToAnalyze) {
+        this.daysToAnalyze = daysToAnalyze;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -80,6 +88,7 @@ public class User {
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
                 ", eii_team='" + eii_team + '\'' +
+                ", daysToAnalyze=" + daysToAnalyze +
                 '}';
     }
 
@@ -88,11 +97,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id.equals(user.id) && CROHN_TYPE.equals(user.CROHN_TYPE) && email.equals(user.email) && password.equals(user.password) && Objects.equals(name, user.name) && Objects.equals(eii_team, user.eii_team);
+        return Objects.equals(id, user.id) && CROHN_TYPE.equals(user.CROHN_TYPE) && email.equals(user.email) && password.equals(user.password) && Objects.equals(name, user.name) && Objects.equals(eii_team, user.eii_team) && daysToAnalyze.equals(user.daysToAnalyze);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, CROHN_TYPE, email, password, name, eii_team);
+        return Objects.hash(id, CROHN_TYPE, email, password, name, eii_team, daysToAnalyze);
     }
 }

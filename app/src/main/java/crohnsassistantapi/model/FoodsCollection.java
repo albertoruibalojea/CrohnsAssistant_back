@@ -13,6 +13,13 @@ public class FoodsCollection {
     private String name;
 
     public FoodsCollection() {
+        this.id = "";
+        this.name = "";
+    }
+
+    public FoodsCollection(String id, String name){
+        this.id = id;
+        this.name = name;
     }
 
     //Getters and Setters

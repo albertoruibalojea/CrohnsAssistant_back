@@ -17,6 +17,17 @@ public class Food {
     private Date timestamp;
 
     public Food() {
+        this.id = "";
+        this.name = "";
+        this.user = "";
+        this.timestamp = new Date();
+    }
+
+    public Food(String id, String user, String name) {
+        this.id = id;
+        this.name = name;
+        this.user = user;
+        this.timestamp = new Date();
     }
 
     public String getId() {

@@ -15,11 +15,25 @@ public class Courage {
 
     private String user;
 
-    private String level;
+    private Integer level;
 
     private ArrayList<String> activities;
 
+
     public Courage() {
+        this.id = "";
+        this.level = 2;
+        this.user = "";
+        this.activities = new ArrayList<>();
+    }
+
+    public Courage(String id, Integer level, String user, ArrayList<String> activities) {
+        this.id = id;
+        this.level = level;
+        this.user = user;
+        if(!activities.isEmpty()){
+            this.activities = activities;
+        }else this.activities = new ArrayList<>();
     }
 
     public String getId() {
@@ -38,11 +52,11 @@ public class Courage {
         this.user = user;
     }
 
-    public String getLevel() {
+    public Integer getLevel() {
         return level;
     }
 
-    public void setLevel(String level) {
+    public void setLevel(Integer level) {
         this.level = level;
     }
 

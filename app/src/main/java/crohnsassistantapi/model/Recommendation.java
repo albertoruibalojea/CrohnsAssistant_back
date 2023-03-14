@@ -16,6 +16,17 @@ public class Recommendation {
     private String category;
 
     public Recommendation() {
+        this.id = "";
+        this.title = "";
+        this.url = "";
+        this.category = "";
+    }
+
+    public Recommendation(String id, String title, String url, String category) {
+        this.id = id;
+        this.title = title;
+        this.url = url;
+        this.category = category;
     }
 
     public String getId() {

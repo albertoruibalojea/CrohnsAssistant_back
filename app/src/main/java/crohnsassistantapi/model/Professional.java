@@ -15,12 +15,15 @@ public class Professional {
     private String type;
 
     public Professional() {
+        this.id = "";
+        this.name = "";
+        this.type = "";
     }
 
-    public Professional(String name, String type) {
+    public Professional(String id, String name, String type) {
+        this.id = id;
         this.name = name;
         this.type = type;
-        this.id = UUID.randomUUID().toString();
     }
 
     public String getId() {

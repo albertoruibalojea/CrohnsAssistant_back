@@ -18,7 +18,19 @@ public class EiiTeam {
     private ArrayList<Professional> professionals;
 
     public EiiTeam() {
+        this.id = "";
+        this.phone = "";
+        this.name = "";
         this.professionals = new ArrayList<>();
+    }
+
+    public EiiTeam(String id, String phone, String name, ArrayList<Professional> professionals) {
+        this.id = id;
+        this.phone = phone;
+        this.name = name;
+        if(!professionals.isEmpty()){
+            this.professionals = professionals;
+        }else this.professionals = new ArrayList<>();
     }
 
     public String getId() {
