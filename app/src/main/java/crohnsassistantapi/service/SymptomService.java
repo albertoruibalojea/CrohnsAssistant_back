@@ -127,6 +127,41 @@ public class SymptomService {
         return symptoms.findById(id);
     }
 
+    public Optional<Page<Symptom>> get(String email, String symptom){
+        Pageable request = PageRequest.of(0, 20, null);
+        Page<Symptom> result;
+
+        if (email != null && symptom != null) {
+            List<Criteria> criterios = new ArrayList<>();
+            Query query = new Query();
+
+            if (!email.isEmpty()) {
+                criterios.add(Criteria.where("user").in(email));
+                criterios.add(Criteria.where("name").in(symptom));
+            }
+
+            query.addCriteria(new Criteria().andOperator(criterios.toArray(new Criteria[criterios.size()])));
+
+            result = PageableExecutionUtils.getPage(
+                    mongo.find(query, Symptom.class),
+                    request,
+                    () -> mongo.count(query, Symptom.class)
+            );
+        } else {
+            Example<Symptom> filter = Example.of(new Symptom());
+
+            result = symptoms.findAll(filter, request);
+        }
+
+        if(result.isEmpty())
+            return Optional.empty();
+        /*else result.map(symptom ->{
+            return Optional.of(result);
+        });*/
+
+        return Optional.of(result);
+    }
+
     public Optional<Symptom> create(Symptom symptom) {
         if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
             throw new IllegalArgumentException("Symptom already exists");

@@ -1,24 +1,5 @@
 package crohnsassistantapi.service;
 
-//this class corresponds to the Crohn´s analyzer
-/*
-* Para cada día D CON REGISTROS de síntomas
-  Se analizan sus síntomas si D.crohnActive == false & D.symptomSet == false & crohnActiveCheck(PREV_DAYs) == false
-    1. Se comprueban los síntomas de D según el TIPO establecido
-    2. Si la puntuación total de los síntomas es mayor o igual a la mitad del umbral(TIPO):
-        a. Se notifica que para el día D, D.symptomSet = true
-        b. Ahora es necesario ver los días anteriores
-            i. Si D.symptomSet = true en PREV_DAYs días => BROTE = true
-                1. Se actualizan D y los PREV_DAYs días a D.crohnActive = true
-                2. Notificar al usuario
-  Si resulta que D.crohnActive == false o D.crohnActiveCheck(PREV_DAYs) == TRUE
-    1. Se comprueban los síntomas de los PREV_DAYs días según el TIPO establecido
-    2. Si la puntuación total de los síntomas de D sigue siendo mayor o igual a mitad de umbral(TIPO):
-        a. Se notifica que para el día D, D.symptomSet = true
-        b. Se actualiza D a D.crohnActive = true
-        c. Notificar al usuario
-* */
-
 import crohnsassistantapi.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -35,20 +16,113 @@ public class CrohnsCriticityService {
 
     private final MongoTemplate mongo;
     private final HealthService healthService;
+    private final SymptomService symptomService;
+    private final FoodService foodService;
 
     @Autowired
-    public CrohnsCriticityService(MongoTemplate mongo, HealthService healthService) {
+    public CrohnsCriticityService(MongoTemplate mongo, HealthService healthService, SymptomService symptomService, FoodService foodService) {
         this.mongo = mongo;
         this.healthService = healthService;
+        this.symptomService = symptomService;
+        this.foodService = foodService;
     }
 
-    //this is the main method that will be called from the controller and uses the other methods
 
     //IDEA: poner en la api de forma pública el averiguar si es positivo para x día concreto
 
+    //method to check food alerts
+    /*public void checkFoodAlert(User user){
+        //first, we get today´s symptoms
+        Optional<Page<Symptom>> symptomList = symptomService.get(user.getEmail(), new Date(), 0, 20, null);
 
+        if(symptomList.isPresent()){
+            //for each symptom, we search in db for the other days with this symptom
+            for(Symptom symptom_i : symptomList.get()){
+                Optional<Page<Symptom>> daysWithThatSymptom = symptomService.get(user.getEmail(), symptom_i.getName());
+
+                if(daysWithThatSymptom.isPresent()){
+                    //now, we get the date for each symptom
+                    for(Symptom d : daysWithThatSymptom.get()){
+
+                        //and now we just search for a common food with d
+                    }
+                }
+            }
+        }
+    }*/
+    
+    //this is the main method for the disease analyzer that will be called from the controller and uses the other methods
     public void analyze(User user){
+        int previousDays = user.getDaysToAnalyze();
 
+        //for the last days, we analyze the symptoms
+        for(int i=0; i<previousDays; i++){
+
+            //this Date is the result of the substraction of the days to analyze from today
+            Date checkDate = new Date();
+            checkDate.setDate(checkDate.getDate() - previousDays);
+
+            Optional<Health> health_i = healthService.get(user.getEmail(), checkDate);
+
+            //health_i = D
+            if(health_i.isPresent()){
+                //if D.isCrohnActive==false && D.symptomatology==false && crohnActiveCheck==false
+                if(!health_i.get().isCrohnActive() && health_i.get().isSymptomatology() && !this.crohnActiveCheck(user)){
+
+                    //get symptoms from that day
+                    Optional<Page<Symptom>> symptomList_i = symptomService.get(user.getEmail(), checkDate, 0, 20, null);
+
+                    if(symptomList_i.isPresent()){
+
+                        //we have to check the symptoms with the user´s crohn type
+                        //if there is a coincidence, it will update the symptomatology to true
+                        //if type is repeated for the daystoAnalyze days for health_i, it means crohn is active
+                        if(this.isAnyType(user, symptomList_i.get().toList())){
+                            health_i.get().setSymptomatology(true);
+                            health_i.get().setType(user.getCROHN_TYPE());
+                            healthService.update(health_i.get());
+
+                            if(this.doesTheTypeRepeat(user, CrohnTypes.fromString(user.getCROHN_TYPE()).getType())){
+                                this.setCrohnActive(user);
+                            }
+
+                        }
+                    }
+                } else if(!health_i.get().isCrohnActive() && this.crohnActiveCheck(user)){
+                    //in this case, the disease is active for the previous days
+                    //but it doesn´t mean it has symptomatology for today, it can be active and under the threshold
+
+                    //get symptoms from that day
+                    Optional<Page<Symptom>> symptomList_i = symptomService.get(user.getEmail(), checkDate, 0, 20, null);
+
+                    if(symptomList_i.isPresent()){
+
+                        //we have to check is symptomatology is present for the previous days
+                        //if not, crohn active is ending
+                        if(this.doesTheTypeRepeat(user, user.getCROHN_TYPE())){
+                            //if the user is still having crohn active for the same type as he has
+                            //else it means symptomatology is false, but the type is the same as the others days and crohn is active for today too
+                            if(this.isAnyType(user, symptomList_i.get().toList())){
+                                health_i.get().setSymptomatology(true);
+                                health_i.get().setType(user.getCROHN_TYPE());
+                                health_i.get().setCrohnActive(true);
+                                healthService.update(health_i.get());
+                            } else {
+                                health_i.get().setSymptomatology(false);
+                                health_i.get().setType(user.getCROHN_TYPE());
+                                health_i.get().setCrohnActive(true);
+                                healthService.update(health_i.get());
+                            }
+                        } else {
+                            health_i.get().setSymptomatology(false);
+                            health_i.get().setType(user.getCROHN_TYPE());
+                            health_i.get().setCrohnActive(false);
+                            healthService.update(health_i.get());
+                        }
+                    }
+                }
+            }
+        }
     }
 
 
@@ -72,7 +146,6 @@ public class CrohnsCriticityService {
         if(healths.isPresent()){
             for(Health health : healths.get().getContent()){
                 health.setCrohnActive(true);
-                health.setType(user.getCROHN_TYPE());
                 healthService.update(health);
             }
         }
@@ -142,6 +215,13 @@ public class CrohnsCriticityService {
 
 
     //in this case, to check which pattern is causing the criticity
+
+    //this method calls all the above methods
+    private boolean isAnyType(User user, List<Symptom> symptoms){
+
+        return this.isTypeIleocolitis(user, symptoms) || this.isTypeColitis(user, symptoms) || this.isTypeIleitis(user, symptoms) ||
+                this.isTypeUpperTract(user, symptoms) || this.isTypePerianal(user, symptoms);
+    }
 
     //check if type is Ileocolitis
     private boolean isTypeIleocolitis(User user, List<Symptom> symptoms){

@@ -17,7 +17,10 @@ public class UserService {
     }
 
     public Optional<User> get(String email) {
-        return users.findById(email);
+        if (users.findById(email).isPresent()){
+            return users.findById(email);
+        } else throw new IllegalArgumentException("User does not exist");
+
     }
 
     public Optional<User> create(User user){

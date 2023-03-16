@@ -11,9 +11,8 @@ import java.util.Objects;
 public class User {
 
     @Id
-    private String id;
-    private String CROHN_TYPE;
     private String email;
+    private String CROHN_TYPE;
     private String password;
     private String name;
     private String eii_team;
@@ -21,14 +20,6 @@ public class User {
 
     public User() {
         this.daysToAnalyze = 3;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getCROHN_TYPE() {
@@ -82,8 +73,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "id='" + id + '\'' +
-                ", CROHN_TYPE='" + CROHN_TYPE + '\'' +
+                "CROHN_TYPE='" + CROHN_TYPE + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", name='" + name + '\'' +
@@ -97,11 +87,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && CROHN_TYPE.equals(user.CROHN_TYPE) && email.equals(user.email) && password.equals(user.password) && Objects.equals(name, user.name) && Objects.equals(eii_team, user.eii_team) && daysToAnalyze.equals(user.daysToAnalyze);
+        return Objects.equals(email, user.email) && CROHN_TYPE.equals(user.CROHN_TYPE) && password.equals(user.password) && Objects.equals(name, user.name) && Objects.equals(eii_team, user.eii_team) && daysToAnalyze.equals(user.daysToAnalyze);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, CROHN_TYPE, email, password, name, eii_team, daysToAnalyze);
+        return Objects.hash(email, CROHN_TYPE, password, name, eii_team, daysToAnalyze);
     }
 }

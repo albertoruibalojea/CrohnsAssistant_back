@@ -15,12 +15,14 @@ public class Food {
     private String name;
     private String user;
     private Date timestamp;
+    private boolean forbidden;
 
     public Food() {
         this.id = "";
         this.name = "";
         this.user = "";
         this.timestamp = new Date();
+        this.forbidden = false;
     }
 
     public Food(String id, String user, String name) {
@@ -28,6 +30,7 @@ public class Food {
         this.name = name;
         this.user = user;
         this.timestamp = new Date();
+        this.forbidden = false;
     }
 
     public String getId() {
@@ -62,6 +65,14 @@ public class Food {
         this.timestamp = timestamp;
     }
 
+    public boolean isForbidden() {
+        return forbidden;
+    }
+
+    public void setForbidden(boolean forbidden) {
+        this.forbidden = forbidden;
+    }
+
     @Override
     public String toString() {
         return "Food{" +
@@ -69,6 +80,7 @@ public class Food {
                 ", name='" + name + '\'' +
                 ", user='" + user + '\'' +
                 ", timestamp=" + timestamp +
+                ", forbidden=" + forbidden +
                 '}';
     }
 
@@ -77,11 +89,11 @@ public class Food {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Food food = (Food) o;
-        return id.equals(food.id) && name.equals(food.name) && user.equals(food.user) && timestamp.equals(food.timestamp);
+        return forbidden == food.forbidden && Objects.equals(id, food.id) && name.equals(food.name) && user.equals(food.user) && timestamp.equals(food.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, user, timestamp);
+        return Objects.hash(id, name, user, timestamp, forbidden);
     }
 }
