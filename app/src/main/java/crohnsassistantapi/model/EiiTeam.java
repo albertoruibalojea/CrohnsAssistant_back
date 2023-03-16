@@ -1,20 +1,29 @@
 package crohnsassistantapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.Objects;
 
 @Document(collection = "eiiTeams")
+@Schema(name = "EiiTeam", description = "Representation of the EiiTeam object")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EiiTeam {
 
     @Id
     private String id;
+    @Schema(example = "986800000")
     private String phone;
+    @NotBlank(message = "The Name field can not be empty")
+    @Schema(required = true, example = "Hospital Universitario de Pontevedra")
     private String name;
+    @NotBlank(message = "The Professionals field can not be empty")
+    @ArraySchema(schema = @Schema(implementation = Professional.class, required = true))
     private ArrayList<Professional> professionals;
 
     public EiiTeam() {
@@ -65,26 +74,4 @@ public class EiiTeam {
         this.professionals = professionals;
     }
 
-    @Override
-    public String toString() {
-        return "EiiTeam{" +
-                "id='" + id + '\'' +
-                ", phone='" + phone + '\'' +
-                ", name='" + name + '\'' +
-                ", professionals=" + professionals +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EiiTeam eiiTeam = (EiiTeam) o;
-        return id.equals(eiiTeam.id) && Objects.equals(phone, eiiTeam.phone) && Objects.equals(name, eiiTeam.name) && Objects.equals(professionals, eiiTeam.professionals);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, phone, name, professionals);
-    }
 }

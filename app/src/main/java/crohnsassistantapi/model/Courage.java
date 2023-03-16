@@ -1,22 +1,27 @@
 package crohnsassistantapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
-import java.util.Objects;
 
 @Document(collection = "courages")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "Courage", description = "Representation of the Courage object")
 public class Courage {
     @Id
     private String id;
-
+    @NotBlank(message = "The User field can not be empty")
+    @Schema(required = true, example = "test@test.com")
     private String user;
-
+    @NotBlank(message = "The Level field can not be empty")
+    @Schema(required = true, example = "2")
     private Integer level;
-
+    @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "Beach"))
     private ArrayList<String> activities;
 
 
@@ -33,7 +38,7 @@ public class Courage {
         this.user = user;
         if(!activities.isEmpty()){
             this.activities = activities;
-        }else this.activities = new ArrayList<>();
+        } else this.activities = new ArrayList<>();
     }
 
     public String getId() {
@@ -68,26 +73,4 @@ public class Courage {
         this.activities = activities;
     }
 
-    @Override
-    public String toString() {
-        return "Courage{" +
-                "id='" + id + '\'' +
-                ", user='" + level + '\'' +
-                ", level='" + level + '\'' +
-                ", activities=" + activities +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Courage courage = (Courage) o;
-        return id.equals(courage.id) && user.equals(courage.user) && level.equals(courage.level) && Objects.equals(activities, courage.activities);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, user, level, activities);
-    }
 }

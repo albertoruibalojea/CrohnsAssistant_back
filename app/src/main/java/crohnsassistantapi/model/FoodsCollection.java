@@ -1,15 +1,21 @@
 package crohnsassistantapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
+
 @Document(collection = "foodsCollection")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "FoodsCollection", description = "Representation of the FoodsCollection object")
 public class FoodsCollection {
 
     @Id
     private String id;
+    @NotBlank(message = "The Name field can not be empty")
+    @Schema(required = true, example = "Egg")
     private String name;
 
     public FoodsCollection() {
@@ -39,28 +45,4 @@ public class FoodsCollection {
         this.name = name;
     }
 
-
-    //Methods
-    @Override
-    public String toString() {
-        return "FoodsCollection{" + "id=" + id + ", name=" + name + '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        FoodsCollection that = (FoodsCollection) o;
-
-        if (id != null ? !id.equals(that.id) : that.id != null) return false;
-        return name != null ? name.equals(that.name) : that.name == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
 }

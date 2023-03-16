@@ -1,20 +1,31 @@
 package crohnsassistantapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 import java.util.Objects;
 
 @Document(collection = "foods")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "Food", description = "Representation of the Food object")
 public class Food {
     @Id
     private String id;
+    @NotBlank(message = "The Name field can not be empty")
+    @Schema(required = true, example = "Egg")
     private String name;
+    @NotBlank(message = "The User field can not be empty")
+    @Schema(required = true, example = "test@test.com")
     private String user;
+    @NotBlank(message = "The Timestamp field can not be empty")
+    @ArraySchema(schema = @Schema(implementation = Date.class, required = true))
     private Date timestamp;
+    @ArraySchema(schema = @Schema(implementation = Boolean.class, required = true))
     private boolean forbidden;
 
     public Food() {
@@ -73,27 +84,4 @@ public class Food {
         this.forbidden = forbidden;
     }
 
-    @Override
-    public String toString() {
-        return "Food{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", user='" + user + '\'' +
-                ", timestamp=" + timestamp +
-                ", forbidden=" + forbidden +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Food food = (Food) o;
-        return forbidden == food.forbidden && Objects.equals(id, food.id) && name.equals(food.name) && user.equals(food.user) && timestamp.equals(food.timestamp);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, user, timestamp, forbidden);
-    }
 }
