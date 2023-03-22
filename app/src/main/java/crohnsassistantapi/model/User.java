@@ -1,6 +1,7 @@
 package crohnsassistantapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -18,26 +19,30 @@ public class User {
     @Id
     @NotBlank(message = "The email field can not be empty")
     @Email
-    @Schema(required = true, example = "test@test.com")
+    @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String email;
-    @Schema(required = true, example = "PATTERN_ILEOCOLITIS")
+    @Schema(required = true, example = "CROHN", implementation = String.class)
+    @NotBlank(message = "The Disease Type field can not be empty")
+    private String disease;
+    @Schema(required = true, example = "PATTERN_ILEOCOLITIS", implementation = String.class)
     @NotBlank(message = "The Crohn Type field can not be empty")
     private String CROHN_TYPE;
-    @Schema(required = true, example = "*************")
+    @Schema(required = true, example = "*************", implementation = String.class)
     @NotBlank(message = "The password field can not be empty")
     private String password;
-    @Schema(required = true, example = "Alberto")
+    @Schema(required = true, example = "Alberto", implementation = String.class)
     private String name;
-    @Schema(example = "64064c611ac26b67e0f86811")
+    @Schema(example = "64064c611ac26b67e0f86811", implementation = String.class)
     private String eii_team;
-    @Schema(example = "3")
+    @Schema(example = "3", implementation = Integer.class)
     @NotBlank(message = "The Days to Analyze field can not be empty")
     private Integer daysToAnalyze;
-    @Schema(example = "ROLE_USER")
+    @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "ROLE_USER"))
     private List<String> roles;
 
-    public User(String email, String CROHN_TYPE, String password, String name, String eii_team, Integer daysToAnalyze, List<String> roles) {
+    public User(String email, String disease, String CROHN_TYPE, String password, String name, String eii_team, Integer daysToAnalyze, List<String> roles) {
         this.email = email;
+        this.disease = String.valueOf(DiseaseTypes.fromString("CROHN"));
         this.CROHN_TYPE = CROHN_TYPE;
         this.password = password;
         this.name = name;
@@ -48,12 +53,21 @@ public class User {
 
     public User() {
         this.email = "";
+        this.disease = String.valueOf(DiseaseTypes.fromString("CROHN"));
         this.CROHN_TYPE = "";
         this.password = "";
         this.name = "";
         this.eii_team = "";
         this.daysToAnalyze = 3;
         this.roles = new ArrayList<>();
+    }
+
+    public String getDisease() {
+        return disease;
+    }
+
+    public void setDisease(String disease) {
+        this.disease = disease;
     }
 
     public String getCROHN_TYPE() {

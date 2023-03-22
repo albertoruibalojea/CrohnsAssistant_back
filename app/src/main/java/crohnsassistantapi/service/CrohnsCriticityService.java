@@ -67,7 +67,7 @@ public class CrohnsCriticityService {
             //health_i = D
             if(health_i.isPresent()){
                 //if D.isCrohnActive==false && D.symptomatology==false && crohnActiveCheck==false
-                if(!health_i.get().isCrohnActive() && health_i.get().isSymptomatology() && !this.crohnActiveCheck(user)){
+                if(!health_i.get().isDiseaseActive() && health_i.get().isSymptomatology() && !this.crohnActiveCheck(user)){
 
                     //get symptoms from that day
                     Optional<Page<Symptom>> symptomList_i = symptomService.get(user.getEmail(), checkDate, 0, 20, null);
@@ -88,7 +88,7 @@ public class CrohnsCriticityService {
 
                         }
                     }
-                } else if(!health_i.get().isCrohnActive() && this.crohnActiveCheck(user)){
+                } else if(!health_i.get().isDiseaseActive() && this.crohnActiveCheck(user)){
                     //in this case, the disease is active for the previous days
                     //but it doesn´t mean it has symptomatology for today, it can be active and under the threshold
 
@@ -105,18 +105,18 @@ public class CrohnsCriticityService {
                             if(this.isAnyType(user, symptomList_i.get().toList())){
                                 health_i.get().setSymptomatology(true);
                                 health_i.get().setType(user.getCROHN_TYPE());
-                                health_i.get().setCrohnActive(true);
+                                health_i.get().setDiseaseActive(true);
                                 healthService.update(health_i.get());
                             } else {
                                 health_i.get().setSymptomatology(false);
                                 health_i.get().setType(user.getCROHN_TYPE());
-                                health_i.get().setCrohnActive(true);
+                                health_i.get().setDiseaseActive(true);
                                 healthService.update(health_i.get());
                             }
                         } else {
                             health_i.get().setSymptomatology(false);
                             health_i.get().setType(user.getCROHN_TYPE());
-                            health_i.get().setCrohnActive(false);
+                            health_i.get().setDiseaseActive(false);
                             healthService.update(health_i.get());
                         }
                     }
@@ -145,7 +145,7 @@ public class CrohnsCriticityService {
         //then, iterate the list of Healths and set the Health.crohnActive to true and type to the user type
         if(healths.isPresent()){
             for(Health health : healths.get().getContent()){
-                health.setCrohnActive(true);
+                health.setDiseaseActive(true);
                 healthService.update(health);
             }
         }
@@ -170,7 +170,7 @@ public class CrohnsCriticityService {
         //then, iterate the list of Healths and check if the Health.crohnActive is true for at least half of the days
         if(healths.isPresent()){
             for(Health h : healths.get().getContent()){
-                if(h.isCrohnActive()){
+                if(h.isDiseaseActive()){
                     previousDays--;
                 }
             }

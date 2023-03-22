@@ -156,7 +156,7 @@ public class HealthService {
             throw new IllegalArgumentException("Health already exists");
         } else {
             if(health.getUser() != null && !health.getUser().isEmpty()){
-                health.setCrohnActive(false);
+                health.setDiseaseActive(false);
                 health.setSymptomatology(false);
 
                 return Optional.of(this.healths.insert(health));

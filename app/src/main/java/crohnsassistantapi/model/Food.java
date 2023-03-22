@@ -17,10 +17,10 @@ public class Food {
     @Id
     private String id;
     @NotBlank(message = "The Name field can not be empty")
-    @Schema(required = true, example = "Egg")
+    @Schema(required = true, example = "Egg", implementation = String.class)
     private String name;
     @NotBlank(message = "The User field can not be empty")
-    @Schema(required = true, example = "test@test.com")
+    @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String user;
     @NotBlank(message = "The Timestamp field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Date.class, required = true))

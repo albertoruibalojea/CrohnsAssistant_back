@@ -1,17 +1,22 @@
 package crohnsassistantapi.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
-import java.util.UUID;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@Schema(name = "Professional", description = "Representation of the Professional object")
 public class Professional {
     @Id
     private String id;
+    @NotBlank(message = "The Name field can not be empty")
+    @Schema(required = true, example = "Alberto", implementation = String.class)
     private String name;
+    @NotBlank(message = "The Type field can not be empty")
+    @Schema(required = true, example = "NURSE", implementation = String.class)
     private String type;
 
     public Professional() {

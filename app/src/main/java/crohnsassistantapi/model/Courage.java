@@ -16,10 +16,10 @@ public class Courage {
     @Id
     private String id;
     @NotBlank(message = "The User field can not be empty")
-    @Schema(required = true, example = "test@test.com")
+    @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String user;
     @NotBlank(message = "The Level field can not be empty")
-    @Schema(required = true, example = "2")
+    @Schema(required = true, example = "2", implementation = Integer.class)
     private Integer level;
     @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "Beach"))
     private ArrayList<String> activities;

@@ -51,7 +51,7 @@ public class EiiTeamService {
         for (Document professionalDoc : professionalsDocs) {
             String name = professionalDoc.getString("name");
             String type = professionalDoc.getString("type");
-            Professional professional = new Professional(name, type);
+            Professional professional = new Professional(null, name, type);
             if (type.equals(ProfessionalTypes.valueOf("doctor").toString().toLowerCase())) {
                 professional.setType(ProfessionalTypes.valueOf("doctor").toString().toLowerCase());
                 professionals.add(professional);

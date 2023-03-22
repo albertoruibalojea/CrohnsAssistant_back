@@ -17,10 +17,10 @@ public class EiiTeam {
 
     @Id
     private String id;
-    @Schema(example = "986800000")
+    @Schema(example = "986800000", implementation = String.class)
     private String phone;
     @NotBlank(message = "The Name field can not be empty")
-    @Schema(required = true, example = "Hospital Universitario de Pontevedra")
+    @Schema(required = true, example = "Hospital Universitario de Pontevedra", implementation = String.class)
     private String name;
     @NotBlank(message = "The Professionals field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Professional.class, required = true))
