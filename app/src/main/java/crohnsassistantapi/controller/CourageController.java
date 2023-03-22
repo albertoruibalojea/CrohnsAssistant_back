@@ -2,6 +2,8 @@ package crohnsassistantapi.controller;
 
 import crohnsassistantapi.model.Courage;
 import crohnsassistantapi.service.CourageService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
@@ -17,6 +19,8 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("courage")
+@Tag(name = "Courage Endpoint", description = "Courage related operations")
+@SecurityRequirement(name = "JWT")
 public class CourageController {
 
     private final CourageService courageService;

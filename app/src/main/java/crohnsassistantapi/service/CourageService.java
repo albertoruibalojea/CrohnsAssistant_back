@@ -58,6 +58,9 @@ public class CourageService {
             result = courage.findAll(filter, request);
         }
 
+        if(result.isEmpty())
+            return Optional.empty();
+
         return Optional.of(result);
     }
 
@@ -103,6 +106,9 @@ public class CourageService {
             Example<Courage> filter = Example.of(new Courage());
             result = courage.findAll(filter, request);
         }
+
+        if(result.isEmpty())
+            return Optional.empty();
 
         return Optional.of(result);
     }

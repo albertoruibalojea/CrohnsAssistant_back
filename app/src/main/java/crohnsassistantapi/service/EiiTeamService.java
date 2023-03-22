@@ -1,5 +1,6 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.model.EiiTeam;
 import crohnsassistantapi.model.Professional;
 import crohnsassistantapi.model.ProfessionalTypes;
@@ -23,17 +24,17 @@ public class EiiTeamService {
     }
 
     //get one eiiTeam
-    public Optional<EiiTeam> get(String id) {
+    public Optional<EiiTeam> get(String id) throws NotFoundAttribute {
         if(eiiTeams.findById(id).isPresent()){
             return Optional.of(eiiTeams.findById(id).get());
-        } else {
-            return Optional.empty();
-        }
+        } else throw new NotFoundAttribute("ID not present in database.");
     }
 
     //get list of professionals by eiiTeam
-    public Optional<List<Professional>> getProfessionalsByEiiTeam(String eiiTeam) {
-        return Optional.of(this.eiiTeams.findProfessionalsByEiiTeam(eiiTeam));
+    public Optional<List<Professional>> getProfessionalsByEiiTeam(String eiiTeam) throws NotFoundAttribute {
+        if(!eiiTeams.findProfessionalsByEiiTeam(eiiTeam).isEmpty()){
+            return Optional.of(eiiTeams.findProfessionalsByEiiTeam(eiiTeam));
+        } else throw new NotFoundAttribute("EiiTeam is not present in database.");
     }
 
     public EiiTeam getHospital(String eiiTeamId) {
