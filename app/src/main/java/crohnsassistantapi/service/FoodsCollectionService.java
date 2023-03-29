@@ -1,5 +1,8 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
+import crohnsassistantapi.model.Food;
 import crohnsassistantapi.model.FoodsCollection;
 import crohnsassistantapi.repository.FoodsCollectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +39,17 @@ public class FoodsCollectionService {
         return Optional.of(result);
     }
 
+    public Optional<FoodsCollection> get(String id) throws NotFoundAttribute {
+        if(foodsCollectionRepository.findById(id).isPresent()){
+            return foodsCollectionRepository.findById(id);
+        } else throw new NotFoundAttribute("Food does not exists in database");
+    }
+
     //add a new food to the database
-    public FoodsCollection add(FoodsCollection food) {
-        return foodsCollectionRepository.save(food);
+    public FoodsCollection add(FoodsCollection food) throws RequiredAttribute {
+        if(!food.getName().isEmpty()){
+            foodsCollectionRepository.insert(food);
+            return food;
+        } else throw new RequiredAttribute("Food name cannot be empty");
     }
 }

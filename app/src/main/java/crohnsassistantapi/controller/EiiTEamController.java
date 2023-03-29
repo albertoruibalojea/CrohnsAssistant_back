@@ -19,13 +19,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Optional;
 
-import static io.jsonwebtoken.Jwts.header;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
@@ -68,7 +68,7 @@ public class EiiTEamController {
                     content = @Content
             )
     })
-    public ResponseEntity<EiiTeam> get(String id) {
+    public ResponseEntity<EiiTeam> get(@PathVariable("id") String id) {
         try {
             Optional<EiiTeam> result = eiiTeamService.get(id);
 
@@ -79,7 +79,6 @@ public class EiiTEamController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-
 
         } catch (NotFoundAttribute e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -92,7 +91,47 @@ public class EiiTEamController {
             path = "{id}/professionals",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public Optional<List<Professional>> getByEiiTeam(String id) {
-        return eiiTeamService.getProfessionalsByEiiTeam(id);
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getProfessionalListEiiTeam",
+            summary = "Get the list of professionals that work in the Eii Team passed"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The EiiTeam details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = EiiTeam.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "EiiTeam not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            )
+    })
+    public ResponseEntity<List<Professional>> getByEiiTeam(@PathVariable("id") String id) {
+        try {
+            Optional<List<Professional>> result = eiiTeamService.getProfessionalsByEiiTeam(id);
+
+            if(result.isPresent()){
+                Link self = linkTo(methodOn(EiiTEamController.class).get(id)).withSelfRel();
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.LINK, self.toString())
+                        .body(result.get());
+            }
+
+        } catch (NotFoundAttribute e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

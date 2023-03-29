@@ -1,5 +1,8 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
+import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Food;
 import crohnsassistantapi.model.Symptom;
 import crohnsassistantapi.model.SymptomTypes;
@@ -130,42 +133,45 @@ public class FoodService {
         return Optional.of(result);
     }
 
-    public Optional<Food> get(String id) {
-        return foods.findById(id);
+    public Optional<Food> get(String id) throws NotFoundAttribute {
+        if(foods.findById(id).isPresent()){
+            return foods.findById(id);
+        } else throw new NotFoundAttribute("Food does not exists in database");
     }
 
-    public Optional<Food> create(Food food) {
+    public Optional<Food> create(Food food) throws AlreadyExistsAttribute, RequiredAttribute {
         //check if food already exists
         if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
-            throw new IllegalArgumentException("Food already exists");
+            throw new AlreadyExistsAttribute("Food already exists");
         } else {
             if(food.getUser() != null && !food.getUser().isEmpty()){
                 if(food.getName() == null || !food.getName().isEmpty()){
                     if(food.getTimestamp() != null){
-                        return Optional.of(foods.save(food));
-                    } else throw new IllegalArgumentException("Timestamp is required");
-                } else throw new IllegalArgumentException("Name is required");
-            } else throw new IllegalArgumentException("User is required");
+                        return Optional.of(foods.insert(food));
+                    } else throw new RequiredAttribute("Timestamp is required");
+                } else throw new RequiredAttribute("Name is required");
+            } else throw new RequiredAttribute("User is required");
         }
     }
 
-    public Optional<Food> update(Food food) {
+    public Optional<Food> update(Food food) throws RequiredAttribute, NotFoundAttribute {
         if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
             if (food.getUser() != null && !food.getUser().isEmpty()) {
                 if (food.getTimestamp() != null) {
                     if (food.getName() != null && !food.getName().isEmpty()) {
                         return Optional.of(foods.save(food));
-                    } else throw new IllegalArgumentException("Name is empty");
-                } else throw new IllegalArgumentException("Timestamp is empty");
-            } else throw new IllegalArgumentException("User is empty");
-        } else throw new IllegalArgumentException("Food doesn´t exist");
+                    } else throw new RequiredAttribute("Name is empty");
+                } else throw new RequiredAttribute("Timestamp is empty");
+            } else throw new RequiredAttribute("User is empty");
+        } else throw new NotFoundAttribute("Food doesn´t exist");
     }
 
-    public Optional<Food> delete(String id) {
+    public Optional<Food> delete(String id) throws NotFoundAttribute {
         Optional<Food> food = foods.findById(id);
+
         if (food.isPresent()) {
             foods.delete(food.get());
             return food;
-        } else throw new IllegalArgumentException("Food doesn´t exist");
+        } else throw new NotFoundAttribute("Food doesn´t exist");
     }
 }

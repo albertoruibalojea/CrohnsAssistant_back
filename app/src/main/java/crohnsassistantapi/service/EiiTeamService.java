@@ -1,6 +1,7 @@
 package crohnsassistantapi.service;
 
 import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.EiiTeam;
 import crohnsassistantapi.model.Professional;
 import crohnsassistantapi.model.ProfessionalTypes;
@@ -37,7 +38,7 @@ public class EiiTeamService {
         } else throw new NotFoundAttribute("EiiTeam is not present in database.");
     }
 
-    public EiiTeam getHospital(String eiiTeamId) {
+    public EiiTeam getHospital(String eiiTeamId) throws RequiredAttribute {
         // Obtain info from each EiiTeam from MongoDB
         Document document = mongoTemplate.findById(eiiTeamId, Document.class, "eiiteams");
 
@@ -74,7 +75,7 @@ public class EiiTeamService {
             } else if (type.equals(ProfessionalTypes.valueOf("auxiliary_nurse").toString().toLowerCase())){
                 professional.setType(ProfessionalTypes.valueOf("auxiliary_nurse").toString().toLowerCase());
                 professionals.add(professional);
-            }
+            } else throw new RequiredAttribute("Professional type is needed");
         }
 
         // Set professionals list to the EiiTeam
