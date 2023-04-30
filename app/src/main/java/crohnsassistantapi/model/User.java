@@ -24,7 +24,7 @@ public class User {
     @Schema(required = true, example = "CROHN", implementation = String.class)
     @NotBlank(message = "The Disease Type field can not be empty")
     private String disease;
-    @Schema(required = true, example = "PATTERN_ILEOCOLITIS", implementation = String.class)
+    @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class)
     @NotBlank(message = "The Crohn Type field can not be empty")
     private String CROHN_TYPE;
     @Schema(required = true, example = "*************", implementation = String.class)

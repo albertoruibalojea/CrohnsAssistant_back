@@ -1,10 +1,15 @@
 package crohnsassistantapi.controller;
 
+import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
+import crohnsassistantapi.model.Health;
 import crohnsassistantapi.model.User;
 import crohnsassistantapi.service.CrohnsCriticityService;
 import crohnsassistantapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +34,15 @@ public class CrohnsCriticityController {
             path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public void get(@PathVariable("user") String email){
+    public ResponseEntity<Health> get(@PathVariable("user") String email){
 
-        Optional<User> user = userService.get(email);
-        crohnsCriticityService.analyze(user.get());
+        try {
+            Optional<User> user = userService.get(email);
+            crohnsCriticityService.analyze(user.get());
+        } catch (NotFoundAttribute | RequiredAttribute message) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

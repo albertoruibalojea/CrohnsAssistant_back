@@ -26,11 +26,8 @@ public class Health {
     @Schema(required = true, example = "true", implementation = Boolean.class, defaultValue = "false")
     private boolean symptomatology;
     @NotBlank(message = "The Disease field can not be empty")
-    @Schema(required = true, example = "PATTERN_ILEOCOLITIS", implementation = String.class)
+    @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class)
     private String type;
-    @NotBlank(message = "The EiiType field can not be empty")
-    @Schema(required = true, example = "EII_CROHN", implementation = String.class)
-    private String eiiType;
     @NotBlank(message = "The Timestamp field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Date.class, required = true))
     private Date timestamp;
@@ -41,7 +38,6 @@ public class Health {
         this.diseaseActive = false;
         this.symptomatology = false;
         this.type = "";
-        this.eiiType = "";
         this.timestamp = new Date();
     }
 
@@ -51,7 +47,6 @@ public class Health {
         this.diseaseActive = false;
         this.symptomatology = false;
         this.type = type;
-        this.eiiType = "EII_CROHN";
         this.timestamp = new Date();
     }
 
@@ -103,11 +98,4 @@ public class Health {
         this.type = type;
     }
 
-    public String getEiiType() {
-        return eiiType;
-    }
-
-    public void setEiiType(String eiiType) {
-        this.eiiType = eiiType;
-    }
 }
