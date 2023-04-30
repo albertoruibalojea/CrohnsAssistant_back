@@ -1,5 +1,9 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
+import crohnsassistantapi.exceptions.ModifiedAttribute;
+import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Symptom;
 import crohnsassistantapi.model.SymptomTypes;
 import crohnsassistantapi.repository.SymptomRepository;
@@ -123,8 +127,10 @@ public class SymptomService {
         return Optional.of(result);
     }
 
-    public Optional<Symptom> get(String id) {
-        return symptoms.findById(id);
+    public Optional<Symptom> get(String id) throws NotFoundAttribute {
+        if(symptoms.findById(id).isPresent()){
+            return symptoms.findById(id);
+        } else throw new NotFoundAttribute("This Symptom does not exists in database");
     }
 
     public Optional<Page<Symptom>> get(String email, String symptom){
@@ -162,9 +168,9 @@ public class SymptomService {
         return Optional.of(result);
     }
 
-    public Optional<Symptom> create(Symptom symptom) {
+    public Optional<Symptom> create(Symptom symptom) throws ModifiedAttribute, RequiredAttribute, AlreadyExistsAttribute {
         if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
-            throw new IllegalArgumentException("Symptom already exists");
+            throw new AlreadyExistsAttribute("Symptom already exists");
         } else {
             if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
                 if (symptom.getTimestamp() != null) {
@@ -173,14 +179,14 @@ public class SymptomService {
                         if(SymptomTypes.fromString(symptom.getName()) != null){
                             return Optional.of(symptoms.save(symptom));
                         }
-                        else throw new IllegalArgumentException("Name is not valid");
-                    } else throw new IllegalArgumentException("Name is empty");
-                } else throw new IllegalArgumentException("Timestamp is empty");
-            } else throw new IllegalArgumentException("User is empty");
+                        else throw new ModifiedAttribute("Name is not valid");
+                    } else throw new RequiredAttribute("Name is empty");
+                } else throw new RequiredAttribute("Timestamp is empty");
+            } else throw new RequiredAttribute("User is empty");
         }
     }
 
-    public Optional<Symptom> update(Symptom symptom) {
+    public Optional<Symptom> update(Symptom symptom) throws NotFoundAttribute, RequiredAttribute, ModifiedAttribute {
         if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
             if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
                 if (symptom.getTimestamp() != null) {
@@ -189,19 +195,19 @@ public class SymptomService {
                         if(SymptomTypes.fromString(symptom.getName()) != null){
                             return Optional.of(symptoms.save(symptom));
                         }
-                        else throw new IllegalArgumentException("Name is not valid");
-                    } else throw new IllegalArgumentException("Name is empty");
-                } else throw new IllegalArgumentException("Timestamp is empty");
-            } else throw new IllegalArgumentException("User is empty");
-        } else throw new IllegalArgumentException("Symptom doesn´t exist");
+                        else throw new ModifiedAttribute("Name is not valid");
+                    } else throw new RequiredAttribute("Name is empty");
+                } else throw new RequiredAttribute("Timestamp is empty");
+            } else throw new RequiredAttribute("User is empty");
+        } else throw new NotFoundAttribute("Symptom doesn´t exist");
     }
 
-    public Optional<Symptom> delete(String id) {
+    public Optional<Symptom> delete(String id) throws NotFoundAttribute {
         Optional<Symptom> symptom = symptoms.findById(id);
         if (symptom.isPresent()) {
             symptoms.delete(symptom.get());
             return symptom;
-        } else throw new IllegalArgumentException("Symptom doesn´t exist");
+        } else throw new NotFoundAttribute("Symptom doesn´t exist");
     }
 
 }

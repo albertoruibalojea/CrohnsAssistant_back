@@ -1,5 +1,6 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.model.Recommendation;
 import crohnsassistantapi.repository.RecommendationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,18 +18,18 @@ public class RecommendationService {
         this.recommendations = recommendations;
     }
 
-    //get all recommendations
-    public Optional<List<Recommendation>> getAll() {
-        return Optional.of(recommendations.findAll());
-    }
 
     //get all recommendations by category
-    public Optional<List<Recommendation>> getByCategory(String category) {
-        return Optional.of(recommendations.findByCategory(category));
+    public Optional<List<Recommendation>> getByCategory(String category) throws NotFoundAttribute {
+        if(!recommendations.findByCategory(category).isEmpty()){
+            return Optional.of(recommendations.findByCategory(category));
+        } else throw new NotFoundAttribute("This category does not exists in database or is empty");
     }
 
     //get a specific recommendation
-    public Optional<Recommendation> get(String id) {
-        return Optional.of(recommendations.findById(id).get());
+    public Optional<Recommendation> get(String id) throws NotFoundAttribute {
+        if(recommendations.findById(id).isPresent()){
+            return recommendations.findById(id);
+        } else throw new NotFoundAttribute("This recommendation does not exists in database");
     }
 }

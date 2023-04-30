@@ -1,5 +1,7 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -52,7 +54,7 @@ public class CrohnsCriticityService {
     }*/
     
     //this is the main method for the disease analyzer that will be called from the controller and uses the other methods
-    public void analyze(User user){
+    public void analyze(User user) throws RequiredAttribute, NotFoundAttribute {
         int previousDays = user.getDaysToAnalyze();
 
         //for the last days, we analyze the symptoms
@@ -129,7 +131,7 @@ public class CrohnsCriticityService {
     // auxiliar methods
 
     //method to set true the Health.crohnActive for today and the previous User.daysToAnalyze days
-    private void setCrohnActive(User user){
+    private void setCrohnActive(User user) throws RequiredAttribute, NotFoundAttribute {
         //access to mongo and get the last User.daysToAnalyze days
         //set the Health.crohnActive to true
         int previousDays = user.getDaysToAnalyze();

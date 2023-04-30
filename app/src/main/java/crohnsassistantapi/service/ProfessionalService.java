@@ -1,5 +1,6 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.model.Professional;
 import crohnsassistantapi.repository.ProfessionalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,9 @@ public class ProfessionalService {
     }
 
     //get one professional
-    public Optional<Professional> get(String id) {
-        return Optional.of(professionals.findById(id).get());
+    public Optional<Professional> get(String id) throws NotFoundAttribute {
+        if(professionals.findById(id).isPresent()){
+            return Optional.of(professionals.findById(id).get());
+        } else throw new NotFoundAttribute("This Professional does not exists in database");
     }
 }

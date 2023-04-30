@@ -100,7 +100,7 @@ public class FoodController {
     @PreAuthorize("isAuthenticated()")
     @Operation(
             operationId = "getAllFoods",
-            summary = "Get all Foods details for the user"
+            summary = "Get all Foods details for the user from a specific date"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -182,7 +182,7 @@ public class FoodController {
     @PreAuthorize("isAuthenticated()")
     @Operation(
             operationId = "getAllFoods",
-            summary = "Get all Foods details for the user"
+            summary = "Get all Foods details for the user from a specific period of time"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -277,11 +277,6 @@ public class FoodController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Food not found",
-                    content = @Content
-            ),
-            @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
@@ -316,7 +311,7 @@ public class FoodController {
     )
     @PreAuthorize("isAuthenticated()")
     @Operation(
-            operationId = "addFood",
+            operationId = "updateFood",
             summary = "Updates a food"
     )
     @ApiResponses({

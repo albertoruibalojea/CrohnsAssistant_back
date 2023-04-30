@@ -1,5 +1,8 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
+import crohnsassistantapi.exceptions.NotFoundAttribute;
+import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Health;
 import crohnsassistantapi.repository.HealthRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,8 +127,10 @@ public class HealthService {
         return Optional.of(result);
     }
 
-    public Optional<Health> get(String id) {
-        return healths.findById(id);
+    public Optional<Health> get(String id) throws NotFoundAttribute {
+        if(healths.findById(id).isPresent()){
+            return healths.findById(id);
+        } else throw new NotFoundAttribute("Food does not exists in database");
     }
 
     public Optional<Health> get(String email, Date timestamp) {
@@ -150,30 +155,45 @@ public class HealthService {
         return Optional.of(mongo.findOne(query, Health.class));
     }
 
-    public Optional<Health> create(Health health) {
+    public Optional<Health> create(Health health) throws AlreadyExistsAttribute, RequiredAttribute {
         //check if health already exists
         if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
-            throw new IllegalArgumentException("Health already exists");
+            throw new AlreadyExistsAttribute("Health already exists");
         } else {
-            if(health.getUser() != null && !health.getUser().isEmpty()){
+            if(health.getUser() != null && !health.getUser().isEmpty() && health.getTimestamp() != null){
                 health.setDiseaseActive(false);
                 health.setSymptomatology(false);
 
+                if(health.getEiiType() != null && health.getType() != null){
+
+                } else throw new RequiredAttribute("EiiType and Type is required");
+
                 return Optional.of(this.healths.insert(health));
-            } else throw new IllegalArgumentException("User is required");
+            } else throw new RequiredAttribute("User and timestamp are required");
         }
     }
 
-    public Optional<Health> update(Health health) {
-        return Optional.of(this.healths.save(health));
+    public Optional<Health> update(Health health) throws RequiredAttribute, NotFoundAttribute {
+        if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
+            if (health.getUser() != null && !health.getUser().isEmpty()) {
+                if (health.getTimestamp() != null) {
+                    if (health.getEiiType() != null && !health.getEiiType().isEmpty()) {
+                        if (health.getType() != null && !health.getType().isEmpty()) {
+                            return Optional.of(healths.save(health));
+                        } else throw new RequiredAttribute("Type is empty");
+                    } else throw new RequiredAttribute("EiiType is empty");
+                } else throw new RequiredAttribute("Timestamp is empty");
+            } else throw new RequiredAttribute("User is empty");
+        } else throw new NotFoundAttribute("health doesn´t exist");
     }
 
-    public Optional<Health> delete(String id) {
+    public Optional<Health> delete(String id) throws NotFoundAttribute {
         Optional<Health> health = healths.findById(id);
+
         if (health.isPresent()) {
             healths.delete(health.get());
             return health;
-        } else throw new IllegalArgumentException("Health doesn´t exist");
+        } else throw new NotFoundAttribute("Health doesn´t exist");
     }
 
     public void deleteAll() {

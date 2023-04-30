@@ -28,6 +28,9 @@ public class Health {
     @NotBlank(message = "The Disease field can not be empty")
     @Schema(required = true, example = "PATTERN_ILEOCOLITIS", implementation = String.class)
     private String type;
+    @NotBlank(message = "The EiiType field can not be empty")
+    @Schema(required = true, example = "EII_CROHN", implementation = String.class)
+    private String eiiType;
     @NotBlank(message = "The Timestamp field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Date.class, required = true))
     private Date timestamp;
@@ -38,6 +41,7 @@ public class Health {
         this.diseaseActive = false;
         this.symptomatology = false;
         this.type = "";
+        this.eiiType = "";
         this.timestamp = new Date();
     }
 
@@ -47,6 +51,7 @@ public class Health {
         this.diseaseActive = false;
         this.symptomatology = false;
         this.type = type;
+        this.eiiType = "EII_CROHN";
         this.timestamp = new Date();
     }
 
@@ -98,29 +103,11 @@ public class Health {
         this.type = type;
     }
 
-
-    @Override
-    public String toString() {
-        return "Health{" +
-                "id='" + id + '\'' +
-                ", user='" + user + '\'' +
-                ", crohnActive=" + diseaseActive +
-                ", symptomatology=" + symptomatology +
-                ", type='" + type + '\'' +
-                ", timestamp=" + timestamp +
-                '}';
+    public String getEiiType() {
+        return eiiType;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Health health = (Health) o;
-        return diseaseActive == health.diseaseActive && symptomatology == health.symptomatology && Objects.equals(id, health.id) && user.equals(health.user) && type.equals(health.type) && timestamp.equals(health.timestamp);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, user, diseaseActive, symptomatology, type, timestamp);
+    public void setEiiType(String eiiType) {
+        this.eiiType = eiiType;
     }
 }
