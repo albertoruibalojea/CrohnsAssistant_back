@@ -1,9 +1,10 @@
 package crohnsassistantapi.controller;
 
 import crohnsassistantapi.exceptions.NotFoundAttribute;
-import crohnsassistantapi.model.Food;
+import crohnsassistantapi.exceptions.RequiredAttribute;
+import crohnsassistantapi.model.EiiTeam;
 import crohnsassistantapi.model.Professional;
-import crohnsassistantapi.service.ProfessionalService;
+import crohnsassistantapi.service.EiiTeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,14 +28,63 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("professionals")
-public class ProfessionalController {
-    private final ProfessionalService professionalService;
+@RequestMapping("eiiteam")
+public class EiiTeamController {
+    private final EiiTeamService eiiTeamService;
 
     @Autowired
-    public ProfessionalController(ProfessionalService professionalService) {
-        this.professionalService = professionalService;
+    public EiiTeamController(EiiTeamService eiiTeamService) {
+        this.eiiTeamService = eiiTeamService;
     }
+
+    @GetMapping(
+            path = "{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getOneEiiTeam",
+            summary = "Get a single EiiTeam details"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The EiiTeam details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = EiiTeam.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "EiiTeam not found",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            )
+    })
+    public ResponseEntity<EiiTeam> getEiiTeam(@PathVariable("id") String id) {
+        try {
+            Optional<EiiTeam> result = eiiTeamService.getEiiTeam(id);
+
+            if(result.isPresent()){
+                Link self = linkTo(methodOn(EiiTeamController.class).getEiiTeam(id)).withSelfRel();
+
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.LINK, self.toString())
+                        .body(result.get());
+            }
+
+        } catch (NotFoundAttribute | RequiredAttribute e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.notFound().build();
+    }
+
 
     @GetMapping(
             path = "{id}",
@@ -60,12 +110,12 @@ public class ProfessionalController {
                     content = @Content
             )
     })
-    public ResponseEntity<Professional> get(@PathVariable("id") String id) {
+    public ResponseEntity<Professional> getProfessional(@PathVariable("id") String id) {
         try {
-            Optional<Professional> result = professionalService.get(id);
+            Optional<Professional> result = eiiTeamService.getProfessional(id);
 
             if(result.isPresent()){
-                Link self = linkTo(methodOn(ProfessionalController.class).get(id)).withSelfRel();
+                Link self = linkTo(methodOn(EiiTeamController.class).getProfessional(id)).withSelfRel();
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.LINK, self.toString())

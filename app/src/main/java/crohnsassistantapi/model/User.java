@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -17,27 +19,30 @@ import java.util.Objects;
 @Schema(name = "User", description = "Representation of the User object")
 public class User {
     @Id
-    @NotBlank(message = "The email field can not be empty")
+    @NotEmpty(message = "The email field can not be empty")
     @Email
     @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String email;
     @Schema(required = true, example = "CROHN", implementation = String.class)
-    @NotBlank(message = "The Disease Type field can not be empty")
+    @NotEmpty(message = "The Disease Type field can not be empty")
     private String disease;
     @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class)
-    @NotBlank(message = "The Crohn Type field can not be empty")
+    @NotEmpty(message = "The Crohn Type field can not be empty")
     private String CROHN_TYPE;
     @Schema(required = true, example = "*************", implementation = String.class)
-    @NotBlank(message = "The password field can not be empty")
+    @NotEmpty(message = "The password field can not be empty")
     private String password;
     @Schema(required = true, example = "Alberto", implementation = String.class)
+    @NotEmpty(message = "The name field can not be empty")
     private String name;
     @Schema(example = "64064c611ac26b67e0f86811", implementation = String.class)
+    //@NotBlank(message = "The eii_team field can not be empty")
     private String eii_team;
     @Schema(example = "3", implementation = Integer.class)
-    @NotBlank(message = "The Days to Analyze field can not be empty")
+    @NotNull(message = "The Days to Analyze field can not be empty")
     private Integer daysToAnalyze;
     @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "ROLE_USER"))
+    @NotNull(message = "The roles field can not be empty")
     private List<String> roles;
 
     public User(String email, String disease, String CROHN_TYPE, String password, String name, String eii_team, Integer daysToAnalyze, List<String> roles) {

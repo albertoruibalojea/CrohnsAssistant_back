@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Document(collection = "foodsCollection")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -14,7 +14,7 @@ public class FoodsCollection {
 
     @Id
     private String id;
-    @NotBlank(message = "The Name field can not be empty")
+    @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Egg")
     private String name;
 

@@ -7,8 +7,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.Objects;
 
 @Document(collection = "foods")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -16,16 +17,17 @@ import java.util.Objects;
 public class Food {
     @Id
     private String id;
-    @NotBlank(message = "The Name field can not be empty")
+    @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Egg", implementation = String.class)
     private String name;
-    @NotBlank(message = "The User field can not be empty")
+    @NotEmpty(message = "The User field can not be empty")
     @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String user;
-    @NotBlank(message = "The Timestamp field can not be empty")
+    @NotNull(message = "The Timestamp field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Date.class, required = true))
     private Date timestamp;
-    @ArraySchema(schema = @Schema(implementation = Boolean.class, required = true))
+    @NotNull(message = "The Forbidden field can not be empty")
+    @ArraySchema(schema = @Schema(implementation = Boolean.class, required = true, defaultValue = "false"))
     private boolean forbidden;
 
     public Food() {

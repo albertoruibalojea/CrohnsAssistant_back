@@ -7,6 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 
 @Document(collection = "courages")
@@ -15,12 +17,13 @@ import java.util.ArrayList;
 public class Courage {
     @Id
     private String id;
-    @NotBlank(message = "The User field can not be empty")
+    @NotEmpty(message = "The User field can not be empty")
     @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String user;
-    @NotBlank(message = "The Level field can not be empty")
+    @NotNull(message = "The Level field can not be empty")
     @Schema(required = true, example = "2", implementation = Integer.class)
     private Integer level;
+    @NotBlank(message = "The Activities field can not be empty")
     @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "Beach"))
     private ArrayList<String> activities;
 

@@ -7,8 +7,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.Objects;
 
 @Document(collection = "eiiTeams")
 @Schema(name = "EiiTeam", description = "Representation of the EiiTeam object")
@@ -18,11 +19,12 @@ public class EiiTeam {
     @Id
     private String id;
     @Schema(example = "986800000", implementation = String.class)
+    @NotBlank(message = "The Phone field can not be empty")
     private String phone;
-    @NotBlank(message = "The Name field can not be empty")
+    @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Hospital Universitario de Pontevedra", implementation = String.class)
     private String name;
-    @NotBlank(message = "The Professionals field can not be empty")
+    @NotNull(message = "The Professionals field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Professional.class, required = true))
     private ArrayList<Professional> professionals;
 

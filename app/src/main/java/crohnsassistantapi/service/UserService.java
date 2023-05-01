@@ -21,42 +21,20 @@ public class UserService {
     public Optional<User> get(String email) throws NotFoundAttribute {
         if (users.findById(email).isPresent()){
             return users.findById(email);
-        } else throw new NotFoundAttribute("User does not exist");
+        } else throw new NotFoundAttribute("User with email " + email + " does not exist");
 
     }
 
     public Optional<User> create(User user) throws RequiredAttribute {
-        if (users.findById(user.getEmail()).isPresent()){
-            throw new IllegalArgumentException("User already exists");
-        } else{
-            if(!user.getEmail().isEmpty() || (user.getEmail() != null)) {
-                if(!user.getName().isEmpty()){
-                    if(!user.getPassword().isEmpty()){
-                        if(!user.getCROHN_TYPE().isEmpty()){
-                            return Optional.of(users.save(user));
-                        } else throw new RequiredAttribute("CROHN_TYPE is empty");
-                    } else throw new RequiredAttribute("Password is empty");
-                } else throw new RequiredAttribute("Name is empty");
-            } else throw new RequiredAttribute("Email is empty");
-
-            //eiiteam not contemplated because of not being mandatory
-        }
+        if (users.findById(user.getEmail()).isEmpty()){
+            return checkFieldsUser(user);
+        } else throw new RequiredAttribute("User with email " + user.getEmail() + " already exists");
     }
 
     public Optional<User> update(User user) throws RequiredAttribute, NotFoundAttribute {
         if (users.findById(user.getEmail()).isPresent()){
-            if(!user.getEmail().isEmpty() || (user.getEmail() != null)) {
-                if(!user.getName().isEmpty()){
-                    if(!user.getPassword().isEmpty()){
-                        if(!user.getCROHN_TYPE().isEmpty()){
-                            return Optional.of(users.save(user));
-                        } else throw new RequiredAttribute("CROHN_TYPE is empty");
-                    } else throw new RequiredAttribute("Password is empty");
-                } else throw new RequiredAttribute("Name is empty");
-            } else throw new RequiredAttribute("Email is empty");
-
-            //eiiteam not contemplated because of not being mandatory
-        } else throw new NotFoundAttribute("User doesn´t exist");
+            return checkFieldsUser(user);
+        } else throw new NotFoundAttribute("User with email " + user.getEmail() + " does not exist");
     }
 
     public Optional<User> delete(String email) throws NotFoundAttribute {
@@ -65,7 +43,22 @@ public class UserService {
         if(user.isPresent()){
             users.delete(user.get());
             return user;
-        } else throw new NotFoundAttribute("User doesn´t exist");
+        } else throw new NotFoundAttribute("User with email " + email + " does not exist");
+    }
+
+
+    private Optional<User> checkFieldsUser(User user) throws RequiredAttribute {
+        if(!user.getEmail().isEmpty() || (user.getEmail() != null)) {
+            if(!user.getName().isEmpty()){
+                if(!user.getPassword().isEmpty()){
+                    if(!user.getCROHN_TYPE().isEmpty()){
+                        return Optional.of(users.save(user));
+                    } else throw new RequiredAttribute("CROHN_TYPE is empty");
+                } else throw new RequiredAttribute("Password is empty");
+            } else throw new RequiredAttribute("Name is empty");
+        } else throw new RequiredAttribute("Email is empty");
+
+        //eiiteam field not contemplated because of not being mandatory
     }
 
 }

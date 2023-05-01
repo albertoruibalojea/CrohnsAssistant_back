@@ -7,6 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.Objects;
 
@@ -16,19 +18,19 @@ import java.util.Objects;
 public class Health {
     @Id
     private String id;
-    @NotBlank(message = "The User field can not be empty")
+    @NotEmpty(message = "The User field can not be empty")
     @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String user;
-    @NotBlank(message = "The Disease field can not be empty")
+    @NotNull(message = "The Disease field can not be empty")
     @Schema(required = true, example = "true", implementation = Boolean.class, defaultValue = "false")
     private boolean diseaseActive;
-    @NotBlank(message = "The Symptomatology field can not be empty")
+    @NotNull(message = "The Symptomatology field can not be empty")
     @Schema(required = true, example = "true", implementation = Boolean.class, defaultValue = "false")
     private boolean symptomatology;
-    @NotBlank(message = "The Disease field can not be empty")
-    @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class)
+    @NotEmpty(message = "The Disease field can not be empty")
+    @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class, defaultValue = "CROHN_ILEOCOLITIS")
     private String type;
-    @NotBlank(message = "The Timestamp field can not be empty")
+    @NotNull(message = "The Timestamp field can not be empty")
     @ArraySchema(schema = @Schema(implementation = Date.class, required = true))
     private Date timestamp;
 
@@ -37,7 +39,7 @@ public class Health {
         this.user = "";
         this.diseaseActive = false;
         this.symptomatology = false;
-        this.type = "";
+        this.type = "CROHN_ILEOCOLITIS";
         this.timestamp = new Date();
     }
 

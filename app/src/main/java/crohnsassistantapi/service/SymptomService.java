@@ -127,12 +127,7 @@ public class SymptomService {
         return Optional.of(result);
     }
 
-    public Optional<Symptom> get(String id) throws NotFoundAttribute {
-        if(symptoms.findById(id).isPresent()){
-            return symptoms.findById(id);
-        } else throw new NotFoundAttribute("This Symptom does not exists in database");
-    }
-
+    //get all symptoms for a specific user
     public Optional<Page<Symptom>> get(String email, String symptom){
         Pageable request = PageRequest.of(0, 20, null);
         Page<Symptom> result;
@@ -168,46 +163,52 @@ public class SymptomService {
         return Optional.of(result);
     }
 
+    //get one symptom by ID
+    public Optional<Symptom> get(String id) throws NotFoundAttribute {
+        if(symptoms.findById(id).isPresent()){
+            return symptoms.findById(id);
+        } else throw new NotFoundAttribute("The symptom with ID " + id + " does not exist in database");
+    }
+
+
+    //create a new symptom
     public Optional<Symptom> create(Symptom symptom) throws ModifiedAttribute, RequiredAttribute, AlreadyExistsAttribute {
-        if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
-            throw new AlreadyExistsAttribute("Symptom already exists");
+        if (symptom.getId() != null && symptoms.findById(symptom.getId()).isEmpty()) {
+            throw new AlreadyExistsAttribute("Symptom with ID " + symptom.getId() + " already exists");
         } else {
-            if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
-                if (symptom.getTimestamp() != null) {
-                    if (symptom.getName() != null && !symptom.getName().isEmpty()) {
-                        //we must compare if the symptom name is valid (it must be one of the SymptomTypes enum values)
-                        if(SymptomTypes.fromString(symptom.getName()) != null){
-                            return Optional.of(symptoms.save(symptom));
-                        }
-                        else throw new ModifiedAttribute("Name is not valid");
-                    } else throw new RequiredAttribute("Name is empty");
-                } else throw new RequiredAttribute("Timestamp is empty");
-            } else throw new RequiredAttribute("User is empty");
+            return checkFieldsSymptom(symptom);
         }
     }
 
+    //update a symptom
     public Optional<Symptom> update(Symptom symptom) throws NotFoundAttribute, RequiredAttribute, ModifiedAttribute {
         if (symptom.getId() != null && symptoms.findById(symptom.getId()).isPresent()) {
-            if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
-                if (symptom.getTimestamp() != null) {
-                    if (symptom.getName() != null && !symptom.getName().isEmpty()) {
-                        //we must compare if the symptom name is valid (it must be one of the SymptomTypes enum values)
-                        if(SymptomTypes.fromString(symptom.getName()) != null){
-                            return Optional.of(symptoms.save(symptom));
-                        }
-                        else throw new ModifiedAttribute("Name is not valid");
-                    } else throw new RequiredAttribute("Name is empty");
-                } else throw new RequiredAttribute("Timestamp is empty");
-            } else throw new RequiredAttribute("User is empty");
-        } else throw new NotFoundAttribute("Symptom doesn´t exist");
+            return checkFieldsSymptom(symptom);
+        } else throw new NotFoundAttribute("Symptom with ID " + symptom.getId() + " does not exist");
     }
 
+    //delete a symptom
     public Optional<Symptom> delete(String id) throws NotFoundAttribute {
         Optional<Symptom> symptom = symptoms.findById(id);
+
         if (symptom.isPresent()) {
             symptoms.delete(symptom.get());
             return symptom;
-        } else throw new NotFoundAttribute("Symptom doesn´t exist");
+        } else throw new NotFoundAttribute("Symptom with ID " + id + " does not exist");
     }
 
+
+    private Optional<Symptom> checkFieldsSymptom(Symptom symptom) throws ModifiedAttribute, RequiredAttribute {
+        if (symptom.getUser() != null && !symptom.getUser().isEmpty()) {
+            if (symptom.getTimestamp() != null) {
+                if (symptom.getName() != null && !symptom.getName().isEmpty()) {
+                    //we must compare if the symptom name is valid (it must be one of the SymptomTypes enum values)
+                    if(SymptomTypes.fromString(symptom.getName()) != null){
+                        symptom.setName(Objects.requireNonNull(SymptomTypes.fromString(symptom.getName())).getName());
+                        return Optional.of(symptoms.save(symptom));
+                    } else throw new ModifiedAttribute("Symptom name is not valid");
+                } else throw new RequiredAttribute("Symptom name is empty");
+            } else throw new RequiredAttribute("Timestamp is empty");
+        } else throw new RequiredAttribute("User is empty");
+    }
 }

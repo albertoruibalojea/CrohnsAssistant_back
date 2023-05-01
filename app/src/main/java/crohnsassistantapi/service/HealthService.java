@@ -127,12 +127,14 @@ public class HealthService {
         return Optional.of(result);
     }
 
+    //get health by id
     public Optional<Health> get(String id) throws NotFoundAttribute {
         if(healths.findById(id).isPresent()){
             return healths.findById(id);
-        } else throw new NotFoundAttribute("Food does not exists in database");
+        } else throw new NotFoundAttribute("Health with ID " + id + " does not exist in database");
     }
 
+    //get health by email and a specific date
     public Optional<Health> get(String email, Date timestamp) {
         List<Criteria> criterios = new ArrayList<>();
         Query query = new Query();
@@ -158,16 +160,11 @@ public class HealthService {
     public Optional<Health> create(Health health) throws AlreadyExistsAttribute, RequiredAttribute {
         //check if health already exists
         if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
-            throw new AlreadyExistsAttribute("Health already exists");
+            throw new AlreadyExistsAttribute("Health with ID " + health.getId() + "already exists");
         } else {
             if(health.getUser() != null && !health.getUser().isEmpty() && health.getTimestamp() != null){
                 health.setDiseaseActive(false);
                 health.setSymptomatology(false);
-
-                if(health.getEiiType() != null && health.getType() != null){
-
-                } else throw new RequiredAttribute("EiiType and Type is required");
-
                 return Optional.of(this.healths.insert(health));
             } else throw new RequiredAttribute("User and timestamp are required");
         }
@@ -177,14 +174,12 @@ public class HealthService {
         if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
             if (health.getUser() != null && !health.getUser().isEmpty()) {
                 if (health.getTimestamp() != null) {
-                    if (health.getEiiType() != null && !health.getEiiType().isEmpty()) {
-                        if (health.getType() != null && !health.getType().isEmpty()) {
-                            return Optional.of(healths.save(health));
-                        } else throw new RequiredAttribute("Type is empty");
-                    } else throw new RequiredAttribute("EiiType is empty");
+                    if (health.getType() != null && !health.getType().isEmpty()) {
+                        return Optional.of(healths.save(health));
+                    } else throw new RequiredAttribute("Type of disease is empty");
                 } else throw new RequiredAttribute("Timestamp is empty");
             } else throw new RequiredAttribute("User is empty");
-        } else throw new NotFoundAttribute("health doesn´t exist");
+        } else throw new NotFoundAttribute("Health with ID " + health.getId() + " does not exist");
     }
 
     public Optional<Health> delete(String id) throws NotFoundAttribute {
@@ -193,10 +188,7 @@ public class HealthService {
         if (health.isPresent()) {
             healths.delete(health.get());
             return health;
-        } else throw new NotFoundAttribute("Health doesn´t exist");
+        } else throw new NotFoundAttribute("Health with ID " + id + " does not exist");
     }
 
-    public void deleteAll() {
-        healths.deleteAll();
-    }
 }

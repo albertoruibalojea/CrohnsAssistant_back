@@ -4,9 +4,9 @@ import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Food;
-import crohnsassistantapi.model.Symptom;
-import crohnsassistantapi.model.SymptomTypes;
+import crohnsassistantapi.model.FoodsCollection;
 import crohnsassistantapi.repository.FoodRepository;
+import crohnsassistantapi.repository.FoodsCollectionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -22,6 +22,7 @@ import java.util.*;
 public class FoodService {
 
     private final FoodRepository foods;
+    private final FoodsCollectionRepository foodsCollectionRepository;
     private final MongoTemplate mongo;
 
 
@@ -31,8 +32,9 @@ public class FoodService {
 
 
     @Autowired
-    public FoodService(FoodRepository foods, MongoTemplate mongo) {
+    public FoodService(FoodRepository foods, FoodsCollectionRepository foodsCollectionRepository, MongoTemplate mongo) {
         this.foods = foods;
+        this.foodsCollectionRepository = foodsCollectionRepository;
         this.mongo = mongo;
     }
 
@@ -79,6 +81,7 @@ public class FoodService {
 
         return Optional.of(result);
     }
+
 
     //get foods from a specific period of time for a specific user
     public Optional<Page<Food>> get(String email, Date start, Date end, int page, int size, Sort sort) {
@@ -133,45 +136,84 @@ public class FoodService {
         return Optional.of(result);
     }
 
+
+    //get one food by id
     public Optional<Food> get(String id) throws NotFoundAttribute {
         if(foods.findById(id).isPresent()){
             return foods.findById(id);
-        } else throw new NotFoundAttribute("Food does not exists in database");
+        } else throw new NotFoundAttribute("Food with ID" + id + " does not exist in database");
     }
 
+
+    //create a new food
     public Optional<Food> create(Food food) throws AlreadyExistsAttribute, RequiredAttribute {
         //check if food already exists
         if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
-            throw new AlreadyExistsAttribute("Food already exists");
+            throw new AlreadyExistsAttribute("Food with ID" + food.getId() + " already exists in database");
         } else {
             if(food.getUser() != null && !food.getUser().isEmpty()){
                 if(food.getName() == null || !food.getName().isEmpty()){
                     if(food.getTimestamp() != null){
                         return Optional.of(foods.insert(food));
                     } else throw new RequiredAttribute("Timestamp is required");
-                } else throw new RequiredAttribute("Name is required");
+                } else throw new RequiredAttribute("Name of food is required");
             } else throw new RequiredAttribute("User is required");
         }
     }
 
+    //update a food
     public Optional<Food> update(Food food) throws RequiredAttribute, NotFoundAttribute {
-        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
+        if (food.getId() != null && foods.findById(food.getId()).isEmpty()) {
             if (food.getUser() != null && !food.getUser().isEmpty()) {
                 if (food.getTimestamp() != null) {
                     if (food.getName() != null && !food.getName().isEmpty()) {
                         return Optional.of(foods.save(food));
-                    } else throw new RequiredAttribute("Name is empty");
+                    } else throw new RequiredAttribute("Name of food is empty");
                 } else throw new RequiredAttribute("Timestamp is empty");
             } else throw new RequiredAttribute("User is empty");
-        } else throw new NotFoundAttribute("Food doesn´t exist");
+        } else throw new NotFoundAttribute("Food with ID" + food.getId() + " does not exist in database");
     }
 
+    //delete a food
     public Optional<Food> delete(String id) throws NotFoundAttribute {
         Optional<Food> food = foods.findById(id);
 
         if (food.isPresent()) {
             foods.delete(food.get());
             return food;
-        } else throw new NotFoundAttribute("Food doesn´t exist");
+        } else throw new NotFoundAttribute("Food with ID" + id + " does not exist in database");
+    }
+
+
+    //FoodsCollection
+    //get all foods
+    public Optional<Page<FoodsCollection>> getCollection(int page, int size, Sort sort) {
+        Pageable request = PageRequest.of(page, size, sort);
+        Page<FoodsCollection> result;
+
+        Example<FoodsCollection> filter = Example.of(new FoodsCollection());
+        result = foodsCollectionRepository.findAll(filter, request);
+
+        if(result.isEmpty())
+            return Optional.empty();
+        /*else result.map(food ->{
+            return Optional.of(result);
+        });*/
+
+        return Optional.of(result);
+    }
+
+    public Optional<FoodsCollection> getCollection(String id) throws NotFoundAttribute {
+        if(foodsCollectionRepository.findById(id).isPresent()){
+            return foodsCollectionRepository.findById(id);
+        } else throw new NotFoundAttribute("Food with ID" + id + " does not exist in database");
+    }
+
+    //add a new food to the database
+    public FoodsCollection create(FoodsCollection food) throws RequiredAttribute {
+        if(!food.getName().isEmpty()){
+            foodsCollectionRepository.insert(food);
+            return food;
+        } else throw new RequiredAttribute("Food name cannot be empty");
     }
 }

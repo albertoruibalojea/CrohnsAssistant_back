@@ -1,6 +1,11 @@
 package crohnsassistantapi.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
+@Schema(name = "DiseaseTypes", description = "IBDs supported by the API at the moment")
 public enum DiseaseTypes {
+
+    @Schema(description = "Crohn's disease")
     CROHN;
     //add colitis in the long run
 

@@ -5,7 +5,6 @@ import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -16,17 +15,13 @@ import java.util.Optional;
 @Service
 public class CrohnsCriticityService {
 
-    private final MongoTemplate mongo;
     private final HealthService healthService;
     private final SymptomService symptomService;
-    private final FoodService foodService;
 
     @Autowired
-    public CrohnsCriticityService(MongoTemplate mongo, HealthService healthService, SymptomService symptomService, FoodService foodService) {
-        this.mongo = mongo;
+    public CrohnsCriticityService(HealthService healthService, SymptomService symptomService) {
         this.healthService = healthService;
         this.symptomService = symptomService;
-        this.foodService = foodService;
     }
 
 
@@ -84,7 +79,7 @@ public class CrohnsCriticityService {
                             health_i.get().setType(user.getCROHN_TYPE());
                             healthService.update(health_i.get());
 
-                            if(this.doesTheTypeRepeat(user, CrohnTypes.fromString(user.getCROHN_TYPE()).getType())){
+                            if(this.doesTheTypeRepeat(user, Objects.requireNonNull(CrohnTypes.fromString(user.getCROHN_TYPE())).getType())){
                                 this.setCrohnActive(user);
                             }
 
@@ -231,47 +226,45 @@ public class CrohnsCriticityService {
         int positivity = 0;
 
         //check if the User.type field is th same as CronTypes.ILEOCOLITIS
-        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.TYPE_ILEOCOLITIS.getType())){
+        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.CROHN_ILEOCOLITIS.getType())){
 
             //iterate the list of symptoms and adding its value to the total
             //in this case, the list is DIARRHEA, ABDOMINAL_PAIN, FATIGUE, WEIGHT_LOSS, BLOOD, NOT_HUNGRY, JOINT_PAIN, HEADACHE, APHTHAS, SKIN_RASH
             for(Symptom symptom : symptoms){
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.DIARRHEA)){
+                if(symptom.getName().equals(SymptomTypes.DIARRHEA.getName())){
                     positivity += SymptomTypes.DIARRHEA.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.ABDOMINAL_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.ABDOMINAL_PAIN.getName())){
                     positivity += SymptomTypes.ABDOMINAL_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.FATIGUE)){
+                if(symptom.getName().equals(SymptomTypes.FATIGUE.getName())){
                     positivity += SymptomTypes.FATIGUE.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.WEIGHT_LOSS)){
+                if(symptom.getName().equals(SymptomTypes.WEIGHT_LOSS.getName())){
                     positivity += SymptomTypes.WEIGHT_LOSS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.BLOOD)){
+                if(symptom.getName().equals(SymptomTypes.BLOOD.getName())){
                     positivity += SymptomTypes.BLOOD.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.NOT_HUNGRY)){
+                if(symptom.getName().equals(SymptomTypes.NOT_HUNGRY.getName())){
                     positivity += SymptomTypes.NOT_HUNGRY.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.JOINT_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.JOINT_PAIN.getName())){
                     positivity += SymptomTypes.JOINT_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.HEADACHE)){
+                if(symptom.getName().equals(SymptomTypes.HEADACHE.getName())){
                     positivity += SymptomTypes.HEADACHE.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.APHTHAS)){
+                if(symptom.getName().equals(SymptomTypes.APHTHAS.getName())){
                     positivity += SymptomTypes.APHTHAS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.SKIN_RASH)){
+                if(symptom.getName().equals(SymptomTypes.SKIN_RASH.getName())){
                     positivity += SymptomTypes.SKIN_RASH.getPunctuation();
                 }
             }
 
             //check if the total is greater or equal than the threshold
-            if(positivity >= CrohnTypes.TYPE_ILEOCOLITIS.getThreshold()){
-                return true;
-            }
+            return positivity >= CrohnTypes.CROHN_ILEOCOLITIS.getThreshold();
         }
         return false;
     }
@@ -282,38 +275,36 @@ public class CrohnsCriticityService {
         int positivity = 0;
 
         //check if the User.type field is th same as CronTypes.ILEITIS
-        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.TYPE_ILEITIS.getType())){
+        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.CROHN_ILEITIS.getType())){
 
             //iterate the list of symptoms and adding its value to the total
             //in this case, the list is DIARRHEA, ABDOMINAL_PAIN, FATIGUE, FEVER, WEIGHT_LOSS, APHTHAS, SKIN_RASH
             for(Symptom symptom : symptoms){
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.DIARRHEA)){
+                if(symptom.getName().equals(SymptomTypes.DIARRHEA.getName())){
                     positivity += SymptomTypes.DIARRHEA.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.ABDOMINAL_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.ABDOMINAL_PAIN.getName())){
                     positivity += SymptomTypes.ABDOMINAL_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.FATIGUE)){
+                if(symptom.getName().equals(SymptomTypes.FATIGUE.getName())){
                     positivity += SymptomTypes.FATIGUE.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.FEVER)){
+                if(symptom.getName().equals(SymptomTypes.FEVER.getName())){
                     positivity += SymptomTypes.FEVER.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.WEIGHT_LOSS)){
+                if(symptom.getName().equals(SymptomTypes.WEIGHT_LOSS.getName())){
                     positivity += SymptomTypes.WEIGHT_LOSS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.APHTHAS)){
+                if(symptom.getName().equals(SymptomTypes.APHTHAS.getName())){
                     positivity += SymptomTypes.APHTHAS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.SKIN_RASH)){
+                if(symptom.getName().equals(SymptomTypes.SKIN_RASH.getName())){
                     positivity += SymptomTypes.SKIN_RASH.getPunctuation();
                 }
             }
 
             //check if the total is greater or equal than the threshold
-            if(positivity >= CrohnTypes.TYPE_ILEITIS.getThreshold()){
-                return true;
-            }
+            return positivity >= CrohnTypes.CROHN_ILEITIS.getThreshold();
         }
         return false;
     }
@@ -324,39 +315,39 @@ public class CrohnsCriticityService {
         int positivity = 0;
 
         //check if the User.type field is th same as CronTypes.COLITIS
-        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.TYPE_COLITIS.getType())){
+        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.CROHN_COLITIS.getType())){
 
             //iterate the list of symptoms and adding its value to the total
             //in this case, the list is DIARRHEA, ABDOMINAL_PAIN, FEVER, NAUSEA, NOT_HUNGRY, WEIGHT_LOSS, APHTHAS, SKIN_RASH
             for(Symptom symptom : symptoms){
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.DIARRHEA)){
+                if(symptom.getName().equals(SymptomTypes.DIARRHEA.getName())){
                     positivity += SymptomTypes.DIARRHEA.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.ABDOMINAL_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.ABDOMINAL_PAIN.getName())){
                     positivity += SymptomTypes.ABDOMINAL_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.FEVER)){
+                if(symptom.getName().equals(SymptomTypes.FEVER.getName())){
                     positivity += SymptomTypes.FEVER.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.NAUSEA)){
+                if(symptom.getName().equals(SymptomTypes.NAUSEA.getName())){
                     positivity += SymptomTypes.NAUSEA.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.NOT_HUNGRY)){
+                if(symptom.getName().equals(SymptomTypes.NOT_HUNGRY.getName())){
                     positivity += SymptomTypes.NOT_HUNGRY.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.WEIGHT_LOSS)){
+                if(symptom.getName().equals(SymptomTypes.WEIGHT_LOSS.getName())){
                     positivity += SymptomTypes.WEIGHT_LOSS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.APHTHAS)){
+                if(symptom.getName().equals(SymptomTypes.APHTHAS.getName())){
                     positivity += SymptomTypes.APHTHAS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.SKIN_RASH)){
+                if(symptom.getName().equals(SymptomTypes.SKIN_RASH.getName())){
                     positivity += SymptomTypes.SKIN_RASH.getPunctuation();
                 }
             }
 
             //check if the total is greater or equal than the threshold
-            return positivity >= CrohnTypes.TYPE_COLITIS.getThreshold();
+            return positivity >= CrohnTypes.CROHN_COLITIS.getThreshold();
         }
 
         return false;
@@ -368,38 +359,36 @@ public class CrohnsCriticityService {
         int positivity = 0;
 
         //check if the User.type field is th same as CronTypes.UPPER_TRACT
-        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.TYPE_UPPER_TRACT.getType())){
+        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.CROHN_UPPER_TRACT.getType())){
 
             //iterate the list of symptoms and adding its value to the total
             //in this case, the list is ABDOMINAL_PAIN, FEVER, NAUSEA, NOT_HUNGRY, WEIGHT_LOSS, APHTHAS and SKIN_RASH
             for(Symptom symptom : symptoms){
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.ABDOMINAL_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.ABDOMINAL_PAIN.getName())){
                     positivity += SymptomTypes.ABDOMINAL_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.FEVER)){
+                if(symptom.getName().equals(SymptomTypes.FEVER.getName())){
                     positivity += SymptomTypes.FEVER.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.NAUSEA)){
+                if(symptom.getName().equals(SymptomTypes.NAUSEA.getName())){
                     positivity += SymptomTypes.NAUSEA.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.NOT_HUNGRY)){
+                if(symptom.getName().equals(SymptomTypes.NOT_HUNGRY.getName())){
                     positivity += SymptomTypes.NOT_HUNGRY.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.WEIGHT_LOSS)){
+                if(symptom.getName().equals(SymptomTypes.WEIGHT_LOSS.getName())){
                     positivity += SymptomTypes.WEIGHT_LOSS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.APHTHAS)){
+                if(symptom.getName().equals(SymptomTypes.APHTHAS.getName())){
                     positivity += SymptomTypes.APHTHAS.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.SKIN_RASH)){
+                if(symptom.getName().equals(SymptomTypes.SKIN_RASH.getName())){
                     positivity += SymptomTypes.SKIN_RASH.getPunctuation();
                 }
             }
 
             //check if the total is greater or equal to the threshold
-            if(positivity >= CrohnTypes.TYPE_UPPER_TRACT.getThreshold()){
-                return true;
-            }
+            return positivity >= CrohnTypes.CROHN_UPPER_TRACT.getThreshold();
         }
 
         return false;
@@ -411,30 +400,30 @@ public class CrohnsCriticityService {
         int positivity = 0;
 
         //check if the User.type field is th same as CronTypes.PERIANAL
-        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.TYPE_PERIANAL.getType())){
+        if (Objects.equals(user.getCROHN_TYPE(), CrohnTypes.CROHN_PERIANAL.getType())){
 
             //iterate the list of symptoms and adding its value to the total
             //in this case, the list is DIARRHEA, ANAL_PAIN, BLOOD, PERIANAL_PAIN and SKIN_RASH
             for(Symptom symptom : symptoms){
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.DIARRHEA)){
+                if(symptom.getName().equals(SymptomTypes.DIARRHEA.getName())){
                     positivity += SymptomTypes.DIARRHEA.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.ANAL_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.ANAL_PAIN.getName())){
                     positivity += SymptomTypes.ANAL_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.BLOOD)){
+                if(symptom.getName().equals(SymptomTypes.BLOOD.getName())){
                     positivity += SymptomTypes.BLOOD.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.PERIANAL_PAIN)){
+                if(symptom.getName().equals(SymptomTypes.PERIANAL_PAIN.getName())){
                     positivity += SymptomTypes.PERIANAL_PAIN.getPunctuation();
                 }
-                if(SymptomTypes.fromString(symptom.getName()).equals(SymptomTypes.SKIN_RASH)){
+                if(symptom.getName().equals(SymptomTypes.SKIN_RASH.getName())){
                     positivity += SymptomTypes.SKIN_RASH.getPunctuation();
                 }
             }
         }
 
         //if the total is greater than the half of the threshold, return true
-        return positivity >= (CrohnTypes.TYPE_PERIANAL.getThreshold() / 2);
+        return positivity >= (CrohnTypes.CROHN_PERIANAL.getThreshold() / 2);
     }
 }

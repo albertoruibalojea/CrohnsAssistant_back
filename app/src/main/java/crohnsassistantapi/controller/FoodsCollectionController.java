@@ -2,10 +2,8 @@ package crohnsassistantapi.controller;
 
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
-import crohnsassistantapi.model.EiiTeam;
-import crohnsassistantapi.model.Food;
 import crohnsassistantapi.model.FoodsCollection;
-import crohnsassistantapi.service.FoodsCollectionService;
+import crohnsassistantapi.service.FoodService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.IanaLinkRelations;
-import org.springframework.hateoas.server.LinkRelationProvider;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,8 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,10 +33,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("foodsCollection")
 public class FoodsCollectionController {
-    private final FoodsCollectionService foodsCollection;
+    private final FoodService foodsCollection;
 
     @Autowired
-    public FoodsCollectionController(FoodsCollectionService foodsCollection) {
+    public FoodsCollectionController(FoodService foodsCollection) {
         this.foodsCollection = foodsCollection;
     }
 
@@ -81,7 +76,7 @@ public class FoodsCollectionController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        Optional<Page<FoodsCollection>> result = foodsCollection.get(page, size, Sort.by(criteria));
+        Optional<Page<FoodsCollection>> result = foodsCollection.getCollection(page, size, Sort.by(criteria));
 
         if(result.isPresent()) {
             Page<FoodsCollection> data = result.get();
@@ -150,7 +145,7 @@ public class FoodsCollectionController {
     })
     ResponseEntity<FoodsCollection> get(@PathVariable("food") String food) throws NotFoundAttribute {
         try {
-            Optional<FoodsCollection> result = foodsCollection.get(food);
+            Optional<FoodsCollection> result = foodsCollection.getCollection(food);
 
             if(result.isPresent()){
                 Link self = linkTo(methodOn(FoodsCollectionController.class).get(food)).withSelfRel();
@@ -204,7 +199,7 @@ public class FoodsCollectionController {
     })
     ResponseEntity<FoodsCollection> add(@RequestBody FoodsCollection food) throws RequiredAttribute {
         try {
-            Optional<FoodsCollection> result = Optional.of(foodsCollection.add(food));
+            Optional<FoodsCollection> result = Optional.of(foodsCollection.create(food));
 
             if(result.isPresent()) {
                 Link self = linkTo(methodOn(FoodsCollectionController.class).add(food)).withSelfRel();

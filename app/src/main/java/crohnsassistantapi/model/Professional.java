@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.Objects;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -12,10 +12,10 @@ import java.util.Objects;
 public class Professional {
     @Id
     private String id;
-    @NotBlank(message = "The Name field can not be empty")
+    @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Alberto", implementation = String.class)
     private String name;
-    @NotBlank(message = "The Type field can not be empty")
+    @NotEmpty(message = "The Type field can not be empty")
     @Schema(required = true, example = "NURSE", implementation = String.class)
     private String type;
 

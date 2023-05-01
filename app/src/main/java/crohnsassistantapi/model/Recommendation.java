@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.util.Objects;
 
 @Document(collection = "recommendations")
@@ -14,13 +14,13 @@ import java.util.Objects;
 public class Recommendation {
     @Id
     private String id;
-    @NotBlank(message = "The Title field can not be empty")
+    @NotEmpty(message = "The Title field can not be empty")
     @Schema(required = true, example = "Brotes. Signos y síntomas", implementation = String.class)
     private String title;
-    @NotBlank(message = "The Url field can not be empty")
+    @NotEmpty(message = "The Url field can not be empty")
     @Schema(required = true, example = "https://educainflamatoria.com/enfermedad-crohn/brotes-signos-y-sintomas/", implementation = String.class)
     private String url;
-    @NotBlank(message = "The Category field can not be empty")
+    @NotEmpty(message = "The Category field can not be empty")
     @Schema(required = true, example = "INF", implementation = String.class)
     private String category;
 

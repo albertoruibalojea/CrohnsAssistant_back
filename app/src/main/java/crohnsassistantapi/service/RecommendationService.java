@@ -20,16 +20,16 @@ public class RecommendationService {
 
 
     //get all recommendations by category
-    public Optional<List<Recommendation>> getByCategory(String category) throws NotFoundAttribute {
-        if(!recommendations.findByCategory(category).isEmpty()){
-            return Optional.of(recommendations.findByCategory(category));
-        } else throw new NotFoundAttribute("This category does not exists in database or is empty");
+    public Optional<List<Recommendation>> getByCategory(String id) throws NotFoundAttribute {
+        if(!recommendations.findByCategory(id).isEmpty()){
+            return Optional.of(recommendations.findByCategory(id));
+        } else throw new NotFoundAttribute("The category with ID " + id + " does not exist in database or is empty");
     }
 
     //get a specific recommendation
     public Optional<Recommendation> get(String id) throws NotFoundAttribute {
         if(recommendations.findById(id).isPresent()){
             return recommendations.findById(id);
-        } else throw new NotFoundAttribute("This recommendation does not exists in database");
+        } else throw new NotFoundAttribute("The recommendation with ID " + id + " does not exist in database");
     }
 }
