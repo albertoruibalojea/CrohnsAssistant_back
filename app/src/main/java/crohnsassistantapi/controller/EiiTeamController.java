@@ -66,12 +66,12 @@ public class EiiTeamController {
                     content = @Content
             )
     })
-    public ResponseEntity<EiiTeam> getEiiTeam(@PathVariable("id") String id) {
+    public ResponseEntity<EiiTeam> get(@PathVariable("id") String id) {
         try {
             Optional<EiiTeam> result = eiiTeamService.getEiiTeam(id);
 
             if(result.isPresent()){
-                Link self = linkTo(methodOn(EiiTeamController.class).getEiiTeam(id)).withSelfRel();
+                Link self = linkTo(methodOn(EiiTeamController.class).get(id)).withSelfRel();
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.LINK, self.toString())
@@ -87,7 +87,7 @@ public class EiiTeamController {
 
 
     @GetMapping(
-            path = "{id}",
+            path = "{id}/professional",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")

@@ -7,5 +7,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.List;
 
 public interface EiiTeamRepository extends MongoRepository<EiiTeam, String> {
-    List<Professional> findProfessionalsByEiiTeam(String eiiTeam);
+
 }
