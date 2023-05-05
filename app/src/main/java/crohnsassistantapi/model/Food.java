@@ -16,6 +16,7 @@ import java.util.Date;
 @Schema(name = "Food", description = "Representation of the Food object")
 public class Food {
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Egg", implementation = String.class)

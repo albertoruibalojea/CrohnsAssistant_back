@@ -15,6 +15,7 @@ import java.util.Date;
 @Schema(name = "Poop", description = "Representation of the Poop object")
 public class Poop {
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The User field can not be empty")
     @Schema(required = true, example = "test@test.com", implementation = String.class)
@@ -29,7 +30,7 @@ public class Poop {
     @Schema(required = true, example = "2", implementation = Integer.class, defaultValue = "3")
     private Integer weight;
     @NotEmpty(message = "The Color field can not be empty. It has to be one of the Color enum values")
-    @Schema(required = true, example = "brown", implementation = String.class, defaultValue = "brown")
+    @Schema(required = true, example = "brown", implementation = String.class, defaultValue = "brown", allowableValues = { "brown", "white", "black", "yellow", "green", "red" })
     private String color;
     @NotNull(message = "The Urgency field can not be empty")
     @Schema(required = true, example = "true", implementation = Boolean.class, defaultValue = "false")

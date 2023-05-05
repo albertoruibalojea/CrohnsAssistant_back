@@ -15,8 +15,8 @@ import java.util.ArrayList;
 @Schema(name = "EiiTeam", description = "Representation of the EiiTeam object")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EiiTeam {
-
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @Schema(example = "986800000", implementation = String.class)
     @NotBlank(message = "The Phone field can not be empty")

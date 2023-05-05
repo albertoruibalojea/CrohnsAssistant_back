@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpHeaders;
@@ -17,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,6 +31,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("recommendations")
+@Tag(name = "Recommendations Endpoint", description = "Recommendations related operations")
+@SecurityRequirement(name = "JWT")
 public class RecommendationController {
     private final RecommendationService recommendationService;
 
@@ -65,7 +70,7 @@ public class RecommendationController {
                     content = @Content
             )
     })
-    public ResponseEntity<List<Recommendation>> getByCategory(String category) {
+    public ResponseEntity<List<Recommendation>> getByCategory(@PathVariable("category") String category) {
         try {
             Optional<List<Recommendation>> result = recommendationService.getByCategory(category);
 
@@ -113,7 +118,7 @@ public class RecommendationController {
                     content = @Content
             )
     })
-    public ResponseEntity<Recommendation> get(String id) {
+    public ResponseEntity<Recommendation> get(@PathVariable("id") String id) {
         try {
             Optional<Recommendation> result = recommendationService.get(id);
 

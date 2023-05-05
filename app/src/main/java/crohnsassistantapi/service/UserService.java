@@ -1,5 +1,6 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.User;
@@ -25,10 +26,10 @@ public class UserService {
 
     }
 
-    public Optional<User> create(User user) throws RequiredAttribute {
+    public Optional<User> create(User user) throws AlreadyExistsAttribute, RequiredAttribute {
         if (users.findById(user.getEmail()).isEmpty()){
             return checkFieldsUser(user);
-        } else throw new RequiredAttribute("User with email " + user.getEmail() + " already exists");
+        } else throw new AlreadyExistsAttribute("User with email " + user.getEmail() + " already exists");
     }
 
     public Optional<User> update(User user) throws RequiredAttribute, NotFoundAttribute {

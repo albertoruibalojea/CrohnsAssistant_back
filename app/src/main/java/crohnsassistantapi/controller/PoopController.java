@@ -1,11 +1,9 @@
 package crohnsassistantapi.controller;
 
 import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
-import crohnsassistantapi.exceptions.ModifiedAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Poop;
-import crohnsassistantapi.model.Symptom;
 import crohnsassistantapi.service.PoopService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -25,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -116,6 +115,11 @@ public class PoopController {
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found",
+                    content = @Content
             )
     })
     ResponseEntity<Page<Poop>> get(@PathVariable("email") String email, @PathVariable("date") String date, @RequestParam(name = "page", defaultValue = "0") int page,
@@ -196,6 +200,11 @@ public class PoopController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found",
                     content = @Content
             )
     })
@@ -291,9 +300,14 @@ public class PoopController {
                     responseCode = "400",
                     description = "Bad Request: you must set at least the user, timestamp, type, weight, color, urgency, painfull and blood attributes",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict: a Poop with the same user and timestamp already exists",
+                    content = @Content
             )
     })
-    ResponseEntity<Poop> create(@RequestBody Poop poop){
+    ResponseEntity<Poop> create(@RequestBody @Valid Poop poop){
         try {
             Optional<Poop> result = poopService.create(poop);
 
@@ -304,8 +318,10 @@ public class PoopController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | AlreadyExistsAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AlreadyExistsAttribute message) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         return ResponseEntity.notFound().build();
@@ -313,7 +329,6 @@ public class PoopController {
 
 
     @PutMapping(
-            path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
@@ -346,7 +361,7 @@ public class PoopController {
                     content = @Content
             )
     })
-    ResponseEntity<Poop> update(@RequestBody Poop poop) {
+    ResponseEntity<Poop> update(@RequestBody @Valid Poop poop) {
         try {
             Optional<Poop> result = poopService.update(poop);
 
@@ -357,8 +372,10 @@ public class PoopController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | NotFoundAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotFoundAttribute message) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.notFound().build();

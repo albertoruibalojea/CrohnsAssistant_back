@@ -29,10 +29,10 @@ public class EiiTeamService {
 
 
     //get one professional
-    public Optional<Professional> getProfessional(String id) throws NotFoundAttribute {
-        if(professionals.findById(id).isPresent()){
-            return Optional.of(professionals.findById(id).get());
-        } else throw new NotFoundAttribute("The Professional with ID " + id + " does not exist in database");
+    public Optional<Professional> getProfessional(String professionalId) throws NotFoundAttribute {
+        if(professionals.findById(professionalId).isPresent()){
+            return Optional.of(professionals.findById(professionalId).get());
+        } else throw new NotFoundAttribute("The Professional with ID " + professionalId + " does not exist in database");
     }
 
     //get one eiiTeam

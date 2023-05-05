@@ -20,10 +20,10 @@ public class RecommendationService {
 
 
     //get all recommendations by category
-    public Optional<List<Recommendation>> getByCategory(String id) throws NotFoundAttribute {
-        if(!recommendations.findByCategory(id).isEmpty()){
-            return Optional.of(recommendations.findByCategory(id));
-        } else throw new NotFoundAttribute("The category with ID " + id + " does not exist in database or is empty");
+    public Optional<List<Recommendation>> getByCategory(String category) throws NotFoundAttribute {
+        if(!recommendations.findByCategory(category).isEmpty()){
+            return Optional.of(recommendations.findByCategory(category));
+        } else throw new NotFoundAttribute("The category " + category + " does not exist in database or is empty");
     }
 
     //get a specific recommendation

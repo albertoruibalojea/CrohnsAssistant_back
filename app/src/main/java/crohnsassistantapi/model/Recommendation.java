@@ -13,6 +13,7 @@ import java.util.Objects;
 @Schema(name = "Recommendation", description = "Representation of the Recommendation object")
 public class Recommendation {
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The Title field can not be empty")
     @Schema(required = true, example = "Brotes. Signos y síntomas", implementation = String.class)

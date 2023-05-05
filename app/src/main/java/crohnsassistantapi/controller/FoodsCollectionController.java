@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,6 +35,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("foodsCollection")
+@Tag(name = "Foods Collection Endpoint", description = "Foods Collection related operations")
+@SecurityRequirement(name = "JWT")
 public class FoodsCollectionController {
     private final FoodService foodsCollection;
 
@@ -60,6 +65,11 @@ public class FoodsCollectionController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "FoodCollection not found",
                     content = @Content
             )
     })
@@ -115,7 +125,7 @@ public class FoodsCollectionController {
 
 
     @GetMapping(
-            path = "{food}",
+            path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("hasRole('ADMIN')")
@@ -143,7 +153,7 @@ public class FoodsCollectionController {
                     content = @Content
             )
     })
-    ResponseEntity<FoodsCollection> get(@PathVariable("food") String food) throws NotFoundAttribute {
+    ResponseEntity<FoodsCollection> get(@PathVariable("id") String food) throws NotFoundAttribute {
         try {
             Optional<FoodsCollection> result = foodsCollection.getCollection(food);
 
@@ -182,11 +192,6 @@ public class FoodsCollectionController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "FoodsCollection not found",
-                    content = @Content
-            ),
-            @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
@@ -195,14 +200,19 @@ public class FoodsCollectionController {
                     responseCode = "400",
                     description = "Bad Request: you must set at least the name",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict: a FoodsCollection with this name already exists",
+                    content = @Content
             )
     })
-    ResponseEntity<FoodsCollection> add(@RequestBody FoodsCollection food) throws RequiredAttribute {
+    public ResponseEntity<FoodsCollection> create(@RequestBody @Valid FoodsCollection food) throws RequiredAttribute {
         try {
-            Optional<FoodsCollection> result = Optional.of(foodsCollection.create(food));
+            Optional<FoodsCollection> result = foodsCollection.create(food);
 
             if(result.isPresent()) {
-                Link self = linkTo(methodOn(FoodsCollectionController.class).add(food)).withSelfRel();
+                Link self = linkTo(methodOn(FoodsCollectionController.class).create(food)).withSelfRel();
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.LINK, self.toString())

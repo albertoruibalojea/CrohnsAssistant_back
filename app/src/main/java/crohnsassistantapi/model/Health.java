@@ -17,6 +17,7 @@ import java.util.Objects;
 @Schema(name = "Health", description = "Representation of the Health object")
 public class Health {
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The User field can not be empty")
     @Schema(required = true, example = "test@test.com", implementation = String.class)

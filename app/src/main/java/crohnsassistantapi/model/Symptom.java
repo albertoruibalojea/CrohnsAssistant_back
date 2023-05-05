@@ -15,11 +15,13 @@ import java.util.Objects;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "Symptom", description = "Representation of the Symptom object")
 public class Symptom {
-
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The Name field can not be empty")
-    @Schema(required = true, example = "Fever", implementation = String.class)
+    @Schema(required = true, example = "Fever", implementation = String.class, allowableValues = { "blood", "diarrhea",
+            "fatigue", "joint_pain", "muscle_pain", "nausea", "abdominal_pain", "weight_loss", "not_hungry", "anal_pain",
+            "headache", "fever", "bathroom_visits", "aphtas", "perianal_pain", "skin_rash"} )
     private String name;
     @NotEmpty(message = "The User field can not be empty")
     @Schema(required = true, example = "test@test.com", implementation = String.class)

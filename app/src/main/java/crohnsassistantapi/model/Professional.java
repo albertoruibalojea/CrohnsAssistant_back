@@ -11,12 +11,13 @@ import java.util.Objects;
 @Schema(name = "Professional", description = "Representation of the Professional object")
 public class Professional {
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Alberto", implementation = String.class)
     private String name;
     @NotEmpty(message = "The Type field can not be empty")
-    @Schema(required = true, example = "NURSE", implementation = String.class)
+    @Schema(required = true, example = "NURSE", implementation = String.class, allowableValues = { "doctor", "nurse", "dietitian", "psychologist", "researcher", "stomatherapist", "auxiliary_nurse" })
     private String type;
 
     public Professional() {

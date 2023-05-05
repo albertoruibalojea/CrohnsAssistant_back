@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpHeaders;
@@ -29,6 +31,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("eiiteam")
+@Tag(name = "Eii Team Endpoint", description = "Eii Team related operations")
+@SecurityRequirement(name = "JWT")
 public class EiiTeamController {
     private final EiiTeamService eiiTeamService;
 
@@ -56,6 +60,11 @@ public class EiiTeamController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input",
+                    content = @Content
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "EiiTeam not found",
                     content = @Content
@@ -78,7 +87,9 @@ public class EiiTeamController {
                         .body(result.get());
             }
 
-        } catch (NotFoundAttribute | RequiredAttribute e) {
+        } catch (RequiredAttribute message) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotFoundAttribute message) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
@@ -87,7 +98,7 @@ public class EiiTeamController {
 
 
     @GetMapping(
-            path = "{id}/professional",
+            path = "{id}/{professionalId}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
@@ -108,14 +119,19 @@ public class EiiTeamController {
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found",
+                    content = @Content
             )
     })
-    public ResponseEntity<Professional> getProfessional(@PathVariable("id") String id) {
+    public ResponseEntity<Professional> getProfessional(@PathVariable("professionalId") String professionalId) {
         try {
-            Optional<Professional> result = eiiTeamService.getProfessional(id);
+            Optional<Professional> result = eiiTeamService.getProfessional(professionalId);
 
             if(result.isPresent()){
-                Link self = linkTo(methodOn(EiiTeamController.class).getProfessional(id)).withSelfRel();
+                Link self = linkTo(methodOn(EiiTeamController.class).getProfessional(professionalId)).withSelfRel();
 
                 return ResponseEntity.ok()
                         .header(HttpHeaders.LINK, self.toString())

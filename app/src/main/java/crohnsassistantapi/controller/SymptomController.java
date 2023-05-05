@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -37,6 +40,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("symptoms")
+@Tag(name = "Symptoms Endpoint", description = "Symptoms related operations")
+@SecurityRequirement(name = "JWT")
 public class SymptomController {
     private final SymptomService symptomService;
 
@@ -115,6 +120,11 @@ public class SymptomController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Symptoms not found",
                     content = @Content
             )
     })
@@ -197,6 +207,11 @@ public class SymptomController {
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Symptoms not found",
+                    content = @Content
             )
     })
     ResponseEntity<Page<Symptom>> get(@PathVariable("email") String email, @PathVariable("dateStart") String dateStart, @PathVariable("dateEnd") String dateEnd, @RequestParam(name = "page", defaultValue = "0") int page,
@@ -278,11 +293,6 @@ public class SymptomController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Symptom not found",
-                    content = @Content
-            ),
-            @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
@@ -291,9 +301,14 @@ public class SymptomController {
                     responseCode = "400",
                     description = "Bad Request: you must set at least the name, user and timestamp",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict: a Symptom with the same name already exists",
+                    content = @Content
             )
     })
-    ResponseEntity<Symptom> create(@RequestBody Symptom symptom){
+    ResponseEntity<Symptom> create(@RequestBody @Valid Symptom symptom){
         try {
             Optional<Symptom> result = symptomService.create(symptom);
 
@@ -304,8 +319,10 @@ public class SymptomController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | AlreadyExistsAttribute | ModifiedAttribute message) {
+        } catch (RequiredAttribute | ModifiedAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AlreadyExistsAttribute message) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         return ResponseEntity.notFound().build();
@@ -313,7 +330,6 @@ public class SymptomController {
 
 
     @PutMapping(
-            path = "{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
@@ -346,7 +362,7 @@ public class SymptomController {
                     content = @Content
             )
     })
-    ResponseEntity<Symptom> update(@RequestBody Symptom symptom) {
+    ResponseEntity<Symptom> update(@RequestBody @Valid Symptom symptom) {
         try {
             Optional<Symptom> result = symptomService.update(symptom);
 
@@ -357,8 +373,10 @@ public class SymptomController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | NotFoundAttribute | ModifiedAttribute message) {
+        } catch (RequiredAttribute | ModifiedAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotFoundAttribute message) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.notFound().build();

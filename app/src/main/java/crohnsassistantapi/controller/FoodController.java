@@ -4,13 +4,14 @@ import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Food;
-import crohnsassistantapi.model.FoodsCollection;
 import crohnsassistantapi.service.FoodService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +38,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("foods")
+@Tag(name = "Food Endpoint", description = "Food related operations")
+@SecurityRequirement(name = "JWT")
 public class FoodController {
     private final FoodService foodService;
 
@@ -114,6 +118,11 @@ public class FoodController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Food not found",
                     content = @Content
             )
     })
@@ -196,6 +205,11 @@ public class FoodController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Not found",
                     content = @Content
             )
     })
@@ -285,9 +299,14 @@ public class FoodController {
                     responseCode = "400",
                     description = "Bad Request: you must set at least the name, user and timestamp",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict: a food with the same user, name and timestamp already exists",
+                    content = @Content
             )
     })
-    ResponseEntity<Food> create(@RequestBody Food food) {
+    ResponseEntity<Food> create(@RequestBody @Valid Food food) {
         try {
             Optional<Food> result = foodService.create(food);
 
@@ -298,8 +317,10 @@ public class FoodController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | AlreadyExistsAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AlreadyExistsAttribute message) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT );
         }
 
         return ResponseEntity.notFound().build();
@@ -339,7 +360,7 @@ public class FoodController {
                     content = @Content
             )
     })
-    ResponseEntity<Food> update(@RequestBody Food food) {
+    ResponseEntity<Food> update(@RequestBody @Valid Food food) {
         try {
             Optional<Food> result = foodService.update(food);
 
@@ -350,8 +371,10 @@ public class FoodController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | NotFoundAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotFoundAttribute message) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.notFound().build();

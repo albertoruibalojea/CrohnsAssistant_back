@@ -1,5 +1,6 @@
 package crohnsassistantapi.controller;
 
+import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Courage;
@@ -292,6 +293,11 @@ public class CourageController {
                     responseCode = "400",
                     description = "Invalid input",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Courage already exists",
+                    content = @Content
             )
     })
     public ResponseEntity<Courage> create(@Valid @RequestBody Courage courage) {
@@ -306,8 +312,10 @@ public class CourageController {
                         .body(result.get());
             }
 
-        } catch (RequiredAttribute | NotFoundAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AlreadyExistsAttribute message) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT );
         }
 
         return ResponseEntity.badRequest().build();

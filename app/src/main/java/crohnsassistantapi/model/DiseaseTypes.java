@@ -6,8 +6,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public enum DiseaseTypes {
 
     @Schema(description = "Crohn's disease")
-    CROHN;
+    CROHN("crohn");
     //add colitis in the long run
+
+    private final String type;
+
+    DiseaseTypes(String type){
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
 
     public static DiseaseTypes fromString(String text) {
         for (DiseaseTypes b : DiseaseTypes.values()) {

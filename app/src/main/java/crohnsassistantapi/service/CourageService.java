@@ -1,5 +1,6 @@
 package crohnsassistantapi.service;
 
+import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Courage;
@@ -126,13 +127,15 @@ public class CourageService {
 
 
     //create a new courage
-    public Optional<Courage> create(Courage courage) throws NotFoundAttribute, RequiredAttribute {
+    public Optional<Courage> create(Courage courage) throws AlreadyExistsAttribute, RequiredAttribute {
         if(courage.getId() != null && this.courage.findById(courage.getId()).isEmpty()) {
-            if(courage.getLevel() != null && courage.getLevel() >= 0 && courage.getLevel() <= 4) {
-                if(courage.getActivities() != null){
-                    return Optional.of(this.courage.save(courage));
-                } else throw new RequiredAttribute("Activities cannot be null. It must be empty or have at least one activity");
-            } else throw new RequiredAttribute("Courage level must be between 0 and 4");
-        } else throw new NotFoundAttribute("Courage with ID " + courage.getId() + "already exists");
+            if(courage.getTimestamp() != null){
+                if(courage.getLevel() != null && courage.getLevel() >= 0 && courage.getLevel() <= 4) {
+                    if(courage.getActivities() != null){
+                        return Optional.of(this.courage.insert(courage));
+                    } else throw new RequiredAttribute("Activities cannot be null. It must be empty or have at least one activity");
+                } else throw new RequiredAttribute("Courage level must be between 0 and 4");
+            } else throw new RequiredAttribute("Courage timestamp cannot be null");
+        } else throw new AlreadyExistsAttribute("Courage with ID " + courage.getId() + "already exists");
     }
 }

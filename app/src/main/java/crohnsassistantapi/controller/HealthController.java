@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +39,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("health")
+@Tag(name = "Health Endpoint", description = "Health related operations")
+@SecurityRequirement(name = "JWT")
 public class HealthController {
     private final HealthService healthService;
 
@@ -115,6 +120,11 @@ public class HealthController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Food not found",
                     content = @Content
             )
     })
@@ -196,6 +206,11 @@ public class HealthController {
             @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Food not found",
                     content = @Content
             )
     })
@@ -290,9 +305,14 @@ public class HealthController {
                     responseCode = "400",
                     description = "Bad Request: you must set at least the user, timestamp, EiiType and Type fields",
                     content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Conflict: a Health with the same user, timestamp, EiiType and Type already exists",
+                    content = @Content
             )
     })
-    ResponseEntity<Health> create(@RequestBody Health health) {
+    ResponseEntity<Health> create(@RequestBody @Valid Health health) {
         try {
             Optional<Health> result = healthService.create(health);
 
@@ -303,8 +323,10 @@ public class HealthController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | AlreadyExistsAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (AlreadyExistsAttribute message) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
 
         return ResponseEntity.notFound().build();
@@ -344,7 +366,7 @@ public class HealthController {
                     content = @Content
             )
     })
-    ResponseEntity<Health> update(@RequestBody Health health) {
+    ResponseEntity<Health> update(@RequestBody @Valid Health health) {
         try {
             Optional<Health> result = healthService.update(health);
 
@@ -355,8 +377,10 @@ public class HealthController {
                         .header(HttpHeaders.LINK, self.toString())
                         .body(result.get());
             }
-        } catch (RequiredAttribute | NotFoundAttribute message) {
+        } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotFoundAttribute message) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.notFound().build();

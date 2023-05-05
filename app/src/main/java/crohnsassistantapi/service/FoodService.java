@@ -210,10 +210,9 @@ public class FoodService {
     }
 
     //add a new food to the database
-    public FoodsCollection create(FoodsCollection food) throws RequiredAttribute {
+    public Optional<FoodsCollection> create(FoodsCollection food) throws RequiredAttribute {
         if(!food.getName().isEmpty()){
-            foodsCollectionRepository.insert(food);
-            return food;
+            return Optional.of(foodsCollectionRepository.insert(food));
         } else throw new RequiredAttribute("Food name cannot be empty");
     }
 }

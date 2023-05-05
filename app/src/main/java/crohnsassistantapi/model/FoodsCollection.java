@@ -11,8 +11,8 @@ import javax.validation.constraints.NotEmpty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(name = "FoodsCollection", description = "Representation of the FoodsCollection object")
 public class FoodsCollection {
-
     @Id
+    @Schema(example = "64064c611ac26b67e0f8680e", implementation = String.class)
     private String id;
     @NotEmpty(message = "The Name field can not be empty")
     @Schema(required = true, example = "Egg")

@@ -23,10 +23,10 @@ public class User {
     @Email
     @Schema(required = true, example = "test@test.com", implementation = String.class)
     private String email;
-    @Schema(required = true, example = "CROHN", implementation = String.class)
+    @Schema(required = true, example = "CROHN", implementation = String.class, allowableValues = { "CROHN" })
     @NotEmpty(message = "The Disease Type field can not be empty")
     private String disease;
-    @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class)
+    @Schema(required = true, example = "CROHN_ILEOCOLITIS", implementation = String.class, allowableValues = { "CROHN_ILEOCOLITIS", "CROHN_COLITIS", "CROHN_ILEITIS", "CROHN_UPPER_TRACT", "CROHN_PERIANAL" })
     @NotEmpty(message = "The Crohn Type field can not be empty")
     private String CROHN_TYPE;
     @Schema(required = true, example = "*************", implementation = String.class)
