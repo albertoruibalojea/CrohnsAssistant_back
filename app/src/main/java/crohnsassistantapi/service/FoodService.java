@@ -28,12 +28,6 @@ public class FoodService {
     private final UserRepository users;
     private final MongoTemplate mongo;
 
-
-
-    //forbidden
-
-
-
     @Autowired
     public FoodService(FoodRepository foods, FoodsCollectionRepository foodsCollectionRepository, UserRepository users, MongoTemplate mongo) {
         this.foods = foods;
@@ -149,7 +143,19 @@ public class FoodService {
     }
 
     //get all forbidden foods
-    
+    public Optional<Page<Map<String, Date>>> get(String email, int page, int size, Sort sort){
+        User user = users.findById(email).get();
+        List<Map<String, Date>> list = new ArrayList<> ();
+        list.add(user.getForbiddenFoods());
+
+        Pageable firstPageWithTwoElements = PageRequest.of (page, size, sort);
+        Page<Map<String, Date>> result = new PageImpl<>(list, firstPageWithTwoElements, user.getForbiddenFoods().size());
+
+        if(result.isEmpty())
+            return Optional.empty();
+
+        return Optional.of(result);
+    }
 
 
     //create a new food

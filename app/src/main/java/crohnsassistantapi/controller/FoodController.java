@@ -27,10 +27,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -270,6 +267,59 @@ public class FoodController {
         }
 
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping(
+            path = "{email}/forbidden",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    @PreAuthorize("isAuthenticated()")
+    @Operation(
+            operationId = "getForbiddenFoods",
+            summary = "Get all Forbidden Foods details for the user"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "The Foods details",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Food.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Not enough privileges",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "List is empty",
+                    content = @Content
+            )
+    })
+    ResponseEntity<Page<Map<String, Date>>> get(@PathVariable("email") String email, @RequestParam(name = "page", defaultValue = "0") int page,
+                                   @RequestParam(name = "size", defaultValue = "20") int size, @RequestParam(name = "sort", defaultValue = "") List<String> sort) {
+        List<Sort.Order> criteria = sort.stream().map(string -> {
+                    if(string.equals("ASC") || string.equals("ASC.name") || string.isEmpty()){
+                        return Sort.Order.asc("name");
+                    } else if (string.equals("DESC") || string.equals("DESC.name")) {
+                        return Sort.Order.desc("name");
+                    } else if(string.equals("ASC.date")){
+                        return Sort.Order.asc("timestamp");
+                    } else if (string.equals("DESC.date")) {
+                        return Sort.Order.desc("timestamp");
+                    } else return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+
+        Optional<Page<Map<String, Date>>> result = foodService.get(email, page, size, Sort.by(criteria));
+
+        return result.map(maps -> ResponseEntity.ok()
+                .body(maps)).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping(
