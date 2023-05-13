@@ -304,7 +304,7 @@ public class SymptomController {
             ),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Conflict: a Symptom with the same name already exists",
+                    description = "Conflict: a Symptom with the same name, user and timestamp already exists",
                     content = @Content
             )
     })

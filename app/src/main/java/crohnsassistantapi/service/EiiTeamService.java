@@ -27,14 +27,6 @@ public class EiiTeamService {
         this.mongoTemplate = mongoTemplate;
     }
 
-
-    //get one professional
-    public Optional<Professional> getProfessional(String professionalId) throws NotFoundAttribute {
-        if(professionals.findById(professionalId).isPresent()){
-            return Optional.of(professionals.findById(professionalId).get());
-        } else throw new NotFoundAttribute("The Professional with ID " + professionalId + " does not exist in database");
-    }
-
     //get one eiiTeam
     public Optional<EiiTeam> getEiiTeam(String id) throws RequiredAttribute, NotFoundAttribute {
         if(eiiTeams.findById(id).isPresent()){

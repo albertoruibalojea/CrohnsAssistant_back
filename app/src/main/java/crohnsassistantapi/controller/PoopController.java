@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("poops")
+@Tag(name = "Poop Endpoint", description = "Poop related operations")
+@SecurityRequirement(name = "JWT")
 public class PoopController {
     private final PoopService poopService;
 
@@ -287,18 +291,13 @@ public class PoopController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Poop not found",
-                    content = @Content
-            ),
-            @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Bad Request: you must set at least the user, timestamp, type, weight, color, urgency, painfull and blood attributes",
+                    description = "Bad Request: you must set at least the user, timestamp, type, weight and color attributes",
                     content = @Content
             ),
             @ApiResponse(
@@ -357,7 +356,7 @@ public class PoopController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Bad Request: you must set at least the user, timestamp, type, weight, color, urgency, painfull and blood attributes",
+                    description = "Bad Request: you must set at least the user, timestamp, type, weight and color attributes",
                     content = @Content
             )
     })

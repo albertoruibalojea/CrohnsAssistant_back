@@ -10,9 +10,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Document(collection = "users")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -44,8 +42,10 @@ public class User {
     @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "ROLE_USER"))
     @NotNull(message = "The roles field can not be empty")
     private List<String> roles;
+    @Schema(type = "object", format = "map", description = "The forbidden foods map with the date of the register")
+    private HashMap<String, Date> forbiddenFoods;
 
-    public User(String email, String disease, String CROHN_TYPE, String password, String name, String eii_team, Integer daysToAnalyze, List<String> roles) {
+    public User(String email, String disease, String CROHN_TYPE, String password, String name, String eii_team, Integer daysToAnalyze, List<String> roles, HashMap<String, Date> forbiddenFoods) {
         this.email = email;
         this.disease = String.valueOf(DiseaseTypes.fromString("CROHN"));
         this.CROHN_TYPE = CROHN_TYPE;
@@ -54,6 +54,7 @@ public class User {
         this.eii_team = eii_team;
         this.daysToAnalyze = daysToAnalyze;
         this.roles = roles;
+        this.forbiddenFoods = forbiddenFoods;
     }
 
     public User() {
@@ -65,6 +66,7 @@ public class User {
         this.eii_team = "";
         this.daysToAnalyze = 3;
         this.roles = new ArrayList<>();
+        this.forbiddenFoods = new HashMap<>();
     }
 
     public String getDisease() {
@@ -131,4 +133,11 @@ public class User {
         this.roles = roles;
     }
 
+    public HashMap<String, Date> getForbiddenFoods() {
+        return forbiddenFoods;
+    }
+
+    public void setForbiddenFoods(HashMap<String, Date> forbiddenFoods) {
+        this.forbiddenFoods = forbiddenFoods;
+    }
 }

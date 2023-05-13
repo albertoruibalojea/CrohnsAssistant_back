@@ -5,8 +5,10 @@ import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
 import crohnsassistantapi.model.Food;
 import crohnsassistantapi.model.FoodsCollection;
+import crohnsassistantapi.model.User;
 import crohnsassistantapi.repository.FoodRepository;
 import crohnsassistantapi.repository.FoodsCollectionRepository;
+import crohnsassistantapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -23,6 +25,7 @@ public class FoodService {
 
     private final FoodRepository foods;
     private final FoodsCollectionRepository foodsCollectionRepository;
+    private final UserRepository users;
     private final MongoTemplate mongo;
 
 
@@ -32,9 +35,10 @@ public class FoodService {
 
 
     @Autowired
-    public FoodService(FoodRepository foods, FoodsCollectionRepository foodsCollectionRepository, MongoTemplate mongo) {
+    public FoodService(FoodRepository foods, FoodsCollectionRepository foodsCollectionRepository, UserRepository users, MongoTemplate mongo) {
         this.foods = foods;
         this.foodsCollectionRepository = foodsCollectionRepository;
+        this.users = users;
         this.mongo = mongo;
     }
 
@@ -144,33 +148,22 @@ public class FoodService {
         } else throw new NotFoundAttribute("Food with ID" + id + " does not exist in database");
     }
 
+    //get all forbidden foods
+    
+
 
     //create a new food
     public Optional<Food> create(Food food) throws AlreadyExistsAttribute, RequiredAttribute {
         //check if food already exists
-        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
-            throw new AlreadyExistsAttribute("Food with ID" + food.getId() + " already exists in database");
-        } else {
-            if(food.getUser() != null && !food.getUser().isEmpty()){
-                if(food.getName() == null || !food.getName().isEmpty()){
-                    if(food.getTimestamp() != null){
-                        return Optional.of(foods.insert(food));
-                    } else throw new RequiredAttribute("Timestamp is required");
-                } else throw new RequiredAttribute("Name of food is required");
-            } else throw new RequiredAttribute("User is required");
-        }
+        if (food.getId() != null && foods.findById(food.getId()).isEmpty()) {
+           return checkFieldsFood(food);
+        } else throw new AlreadyExistsAttribute("Food with ID" + food.getId() + " already exists in database");
     }
 
     //update a food
     public Optional<Food> update(Food food) throws RequiredAttribute, NotFoundAttribute {
-        if (food.getId() != null && foods.findById(food.getId()).isEmpty()) {
-            if (food.getUser() != null && !food.getUser().isEmpty()) {
-                if (food.getTimestamp() != null) {
-                    if (food.getName() != null && !food.getName().isEmpty()) {
-                        return Optional.of(foods.save(food));
-                    } else throw new RequiredAttribute("Name of food is empty");
-                } else throw new RequiredAttribute("Timestamp is empty");
-            } else throw new RequiredAttribute("User is empty");
+        if (food.getId() != null && foods.findById(food.getId()).isPresent()) {
+            return checkFieldsFood(food);
         } else throw new NotFoundAttribute("Food with ID" + food.getId() + " does not exist in database");
     }
 
@@ -182,6 +175,25 @@ public class FoodService {
             foods.delete(food.get());
             return food;
         } else throw new NotFoundAttribute("Food with ID" + id + " does not exist in database");
+    }
+
+    private Optional<Food> checkFieldsFood(Food food) throws RequiredAttribute {
+        if(food.getUser() == null && !food.getUser().isEmpty()){
+            if(food.getName() == null || !food.getName().isEmpty()){
+                if(food.getTimestamp() != null){
+                    if(food.isForbidden()){
+                        User user = users.findById(food.getUser()).get();
+                        if(food.isForbidden()){
+                            if(user.getForbiddenFoods().get(food.getName().toString()) != null){
+                                user.getForbiddenFoods().put(food.getName(), food.getTimestamp());
+                                users.save(user);
+                            }
+                        }
+                    }
+                    return Optional.of(foods.save(food));
+                } else throw new RequiredAttribute("Timestamp is required");
+            } else throw new RequiredAttribute("Name of food is required");
+        } else throw new RequiredAttribute("User is required");
     }
 
 

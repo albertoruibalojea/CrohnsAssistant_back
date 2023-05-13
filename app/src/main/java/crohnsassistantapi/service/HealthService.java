@@ -3,6 +3,7 @@ package crohnsassistantapi.service;
 import crohnsassistantapi.exceptions.AlreadyExistsAttribute;
 import crohnsassistantapi.exceptions.NotFoundAttribute;
 import crohnsassistantapi.exceptions.RequiredAttribute;
+import crohnsassistantapi.model.CrohnTypes;
 import crohnsassistantapi.model.Health;
 import crohnsassistantapi.repository.HealthRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class HealthService {
             result = healths.findAll(filter, request);
         }
 
-        if(result.isEmpty())
+        if (result.isEmpty())
             return Optional.empty();
         /*else result.map(health ->{
             return Optional.of(result);
@@ -118,7 +119,7 @@ public class HealthService {
             result = healths.findAll(filter, request);
         }
 
-        if(result.isEmpty())
+        if (result.isEmpty())
             return Optional.empty();
         /*else result.map(health ->{
             return Optional.of(result);
@@ -129,7 +130,7 @@ public class HealthService {
 
     //get health by id
     public Optional<Health> get(String id) throws NotFoundAttribute {
-        if(healths.findById(id).isPresent()){
+        if (healths.findById(id).isPresent()) {
             return healths.findById(id);
         } else throw new NotFoundAttribute("Health with ID " + id + " does not exist in database");
     }
@@ -158,27 +159,15 @@ public class HealthService {
     }
 
     public Optional<Health> create(Health health) throws AlreadyExistsAttribute, RequiredAttribute {
-        //check if health already exists
-        if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
-            throw new AlreadyExistsAttribute("Health with ID " + health.getId() + "already exists");
-        } else {
-            if(health.getUser() != null && !health.getUser().isEmpty() && health.getTimestamp() != null){
-                health.setDiseaseActive(false);
-                health.setSymptomatology(false);
-                return Optional.of(this.healths.insert(health));
-            } else throw new RequiredAttribute("User and timestamp are required");
-        }
+        //check if food already exists
+        if (health.getId() != null && healths.findById(health.getId()).isEmpty()) {
+            return checkFieldsHealth(health, true);
+        } else throw new AlreadyExistsAttribute("Health with ID" + health.getId() + " already exists in database");
     }
 
     public Optional<Health> update(Health health) throws RequiredAttribute, NotFoundAttribute {
         if (health.getId() != null && healths.findById(health.getId()).isPresent()) {
-            if (health.getUser() != null && !health.getUser().isEmpty()) {
-                if (health.getTimestamp() != null) {
-                    if (health.getType() != null && !health.getType().isEmpty()) {
-                        return Optional.of(healths.save(health));
-                    } else throw new RequiredAttribute("Type of disease is empty");
-                } else throw new RequiredAttribute("Timestamp is empty");
-            } else throw new RequiredAttribute("User is empty");
+            return checkFieldsHealth(health, false);
         } else throw new NotFoundAttribute("Health with ID " + health.getId() + " does not exist");
     }
 
@@ -189,6 +178,25 @@ public class HealthService {
             healths.delete(health.get());
             return health;
         } else throw new NotFoundAttribute("Health with ID " + id + " does not exist");
+    }
+
+
+    private Optional<Health> checkFieldsHealth(Health health, boolean flag) throws RequiredAttribute {
+        if (health.getUser() != null && !health.getUser().isEmpty()) {
+            if (health.getTimestamp() != null) {
+                if (health.getType() != null && !health.getType().isEmpty()) {
+                    //Check if type is correct
+                    if(CrohnTypes.fromString(health.getType()) != null){
+                        //flag indicates whether the action is create (true) or update (false)
+                        if (flag) {
+                            health.setDiseaseActive(false);
+                            health.setSymptomatology(false);
+                        }
+                        return Optional.of(healths.save(health));
+                    } else throw new RequiredAttribute("Type of disease does not correspond to the correct ones");
+                } else throw new RequiredAttribute("Type of disease is required");
+            } else throw new RequiredAttribute("Timestamp is required");
+        } else throw new RequiredAttribute("User is required");
     }
 
 }

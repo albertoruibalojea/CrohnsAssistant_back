@@ -173,11 +173,10 @@ public class SymptomService {
 
     //create a new symptom
     public Optional<Symptom> create(Symptom symptom) throws ModifiedAttribute, RequiredAttribute, AlreadyExistsAttribute {
+        //check if symptom already exists
         if (symptom.getId() != null && symptoms.findById(symptom.getId()).isEmpty()) {
-            throw new AlreadyExistsAttribute("Symptom with ID " + symptom.getId() + " already exists");
-        } else {
             return checkFieldsSymptom(symptom);
-        }
+        } else throw new AlreadyExistsAttribute("Symptom with ID" + symptom.getId() + " already exists in database");
     }
 
     //update a symptom
@@ -206,9 +205,9 @@ public class SymptomService {
                     if(SymptomTypes.fromString(symptom.getName()) != null){
                         symptom.setName(Objects.requireNonNull(SymptomTypes.fromString(symptom.getName())).getName());
                         return Optional.of(symptoms.save(symptom));
-                    } else throw new ModifiedAttribute("Symptom name is not valid");
-                } else throw new RequiredAttribute("Symptom name is empty");
-            } else throw new RequiredAttribute("Timestamp is empty");
-        } else throw new RequiredAttribute("User is empty");
+                    } else throw new ModifiedAttribute("Symptom name is not one of the valid ones");
+                } else throw new RequiredAttribute("Symptom name is required");
+            } else throw new RequiredAttribute("Timestamp is required");
+        } else throw new RequiredAttribute("User is required");
     }
 }

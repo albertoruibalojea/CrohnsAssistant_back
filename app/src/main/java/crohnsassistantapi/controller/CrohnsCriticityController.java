@@ -38,7 +38,7 @@ public class CrohnsCriticityController {
     }
 
     @GetMapping(
-            path = "{id}",
+            path = "{user}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     @PreAuthorize("isAuthenticated()")
@@ -53,12 +53,17 @@ public class CrohnsCriticityController {
                     content = @Content
             ),
             @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content
+            ),
+            @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input",
+                    description = "Bad request",
                     content = @Content
             )
     })
-    public ResponseEntity<Health> get(@PathVariable("id") String email){
+    public ResponseEntity<Health> get(@PathVariable("user") String email){
 
         try {
             Optional<User> user = userService.get(email);

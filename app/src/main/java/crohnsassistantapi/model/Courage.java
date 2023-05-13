@@ -29,7 +29,8 @@ public class Courage {
     @Schema(required = true, example = "2", implementation = Integer.class)
     private Integer level;
     @NotBlank(message = "The Activities field can not be empty")
-    @ArraySchema(schema = @Schema(implementation = String.class, required = true, example = "Beach"))
+    @ArraySchema(schema = @Schema(implementation = String.class, required = true, allowableValues = {"family", "fiends", "travel", "date", "sleep", "sport", "outdoors",
+    "shopping", "reading", "games", "movies", "music", "cleaning", "eat", "rest", "selfcare"}))
     private ArrayList<String> activities;
 
 

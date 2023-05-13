@@ -63,7 +63,7 @@ public class CourageController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "The Foods details",
+                    description = "The Courage details",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = Courage.class)

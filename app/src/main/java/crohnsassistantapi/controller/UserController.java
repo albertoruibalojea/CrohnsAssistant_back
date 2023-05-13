@@ -113,7 +113,7 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Bad Request: you must set at least the email, password, name and Eii disease",
+                    description = "Bad Request: you must set at least the email, password, name, disease (CROHN only) and Crohn Type",
                     content = @Content
             ),
             @ApiResponse(
@@ -122,8 +122,8 @@ public class UserController {
                     content = @Content
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Not Found: email not found",
+                    responseCode = "404",
+                    description = "Not Found: EiiTeam of the user not found",
                     content = @Content
             )
     })
@@ -142,6 +142,8 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         } catch (RequiredAttribute message) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (NotFoundAttribute message) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         return ResponseEntity.notFound().build();
@@ -176,7 +178,7 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Bad Request: you must set at least the email, password, name and Eii disease",
+                    description = "Bad Request: you must set at least the email, password, name, disease (CROHN only) and Crohn Type",
                     content = @Content
             )
     })

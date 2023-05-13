@@ -292,11 +292,6 @@ public class HealthController {
                     )
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Health not found",
-                    content = @Content
-            ),
-            @ApiResponse(
                     responseCode = "403",
                     description = "Not enough privileges",
                     content = @Content

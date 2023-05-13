@@ -297,7 +297,7 @@ public class FoodController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Bad Request: you must set at least the name, user and timestamp",
+                    description = "Bad Request: you must set at least the name, user, if it is forbidden and timestamp",
                     content = @Content
             ),
             @ApiResponse(
@@ -356,7 +356,7 @@ public class FoodController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Bad Request: you must set at least the name, user and timestamp",
+                    description = "Bad Request: you must set at least the name, user, if it is forbidden and timestamp",
                     content = @Content
             )
     })
